@@ -1,5 +1,5 @@
 local cpu_factory = require("monitor.cpu")
-local graph_factory = require("graph")
+local graph_factory = require("struct.graph")
 local make_widget = require("widget.make_widget")
 
 function new(width, height)
