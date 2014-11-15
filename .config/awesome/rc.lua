@@ -52,7 +52,7 @@ end
 -- #########
 
 -- Load our theme file.
-beautiful.init("/home/joshua/.config/awesome/theme.lua")
+beautiful.init(".config/awesome/theme.lua")
 
 -- #############
 -- # Variables #
@@ -794,6 +794,33 @@ end
 -- Set keys
 root.keys(keys.global)
 
+-- ##################
+-- # Buttonbindings #
+-- ##################
+
+local buttons = {}
+
+buttons.client = awful.util.table.join(
+	-- Mouse 1 = Focus a client.
+    awful.button({}, 1,
+        function (c)
+            client.focus = c;
+            c:raise()
+        end
+    ),
+
+    -- Mod + Mouse 1 = Move a client.
+    awful.button({modkey}, 1,
+        awful.mouse.client.move
+    ),
+
+
+    -- Mod + Mouse 3 = Resize a client.
+    awful.button({modkey}, 3,
+        awful.mouse.client.resize
+    )
+)
+
 -- #########
 -- # Rules #
 -- #########
@@ -806,12 +833,12 @@ awful.rules.rules = {-- All clients will match this rule.
                                     focus = awful.client.focus.filter,
                                     raise = true,
                                     keys = keys.client,
-                                    buttons = clientbuttons,
+                                    buttons = buttons.client,
                                     size_hints_honor = false}},
                     {rule = {class = "Plugin-container"},
                      properties = {floating = true}},
                     {rule = {class = "URxvt"},
-                     properties = {size_hints_honor = false}},
+                     properties = {size_hints_honor = true}},
                     {rule = {class = "pinentry"},
                      properties = {floating = true}}}
                      -- Set Firefox to always map on tags number 2 of screen 1.
