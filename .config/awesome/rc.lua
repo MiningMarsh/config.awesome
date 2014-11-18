@@ -471,11 +471,11 @@ keys.global = awful.util.table.join(
         function()
             local old = client.focus
             if old then
-            	awful.client.focus.byidx(1)
-            	if client.focus and client.focus ~= old then
-            		client.focus:kill()
-            	end
-            	client.focus = old
+                awful.client.focus.byidx(1)
+                if client.focus and client.focus ~= old then
+                    client.focus:kill()
+                end
+                client.focus = old
             end
         end
     ),
@@ -485,11 +485,11 @@ keys.global = awful.util.table.join(
         function()
             local old = client.focus
             if old then
-            	awful.client.focus.byidx(-1)
-            	if client.focus and client.focus ~= old then
-            		client.focus:kill()
-            	end
-            	client.focus = old
+                awful.client.focus.byidx(-1)
+                if client.focus and client.focus ~= old then
+                    client.focus:kill()
+                end
+                client.focus = old
             end
         end
     ),
@@ -508,22 +508,42 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + - = View previous tag.
+    -- View previous tag.
     awful.key({config.keys.master}, config.keys.desktops.previous,
         function()
             awful.tag.viewprev()
         end
     ),
 
-    -- Mod + = View next tag.
+    -- View next tag.
     awful.key({config.keys.master}, config.keys.desktops.next,
         function()
             awful.tag.viewnext()
         end
     ),
 
-    -- Mod + Control + - = Close windows on previous tag.
-    awful.key({config.keys.master, config.keys.move}, config.keys.desktops.previous,
+    -- Close windows on next tag.
+    awful.key({config.keys.master, config.keys.close}, config.keys.desktops.next,
+        function()
+            local tagid = awful.tag.getidx()
+            local tags = screens[mouse.screen].tags
+            local tagsize = #tags
+
+            if tagid == tagsize then
+                tagid = 1
+            else
+                tagid = tagid + 1
+            end
+
+            local tag = tags[tagid]
+            for _, client in pairs(tag:clients()) do
+                client:kill()
+            end
+        end
+    ),
+
+    -- Close windows on previous tag.
+    awful.key({config.keys.master, config.keys.close}, config.keys.desktops.previous,
         function()
             local tagid = awful.tag.getidx()
             local tags = screens[mouse.screen].tags
@@ -542,7 +562,7 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + Shift + - = Move window to previous tag.
+    -- Move window to previous tag.
     awful.key({config.keys.master, config.keys.move}, config.keys.desktops.previous,
         function()
             local tagid = awful.tag.getidx()
@@ -560,7 +580,7 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + Shift + = = Move window to next tag.
+    -- Move window to next tag.
     awful.key({config.keys.master, config.keys.move}, config.keys.desktops.next,
         function()
             local tagid = awful.tag.getidx()
