@@ -652,7 +652,7 @@ keys.client = awful.util.table.join(
 )
 
 -- Bind desktop keys.
-for i, key in pairs(config.keys.desktops)  do
+for i, key in ipairs(config.keys.desktops)  do
     -- The keycode for the specified number key.
 
     -- Bind some keys.
@@ -701,9 +701,9 @@ for i, key in pairs(config.keys.desktops)  do
 end
 
 -- Bind window keys.
-for i, key in pairs(config.keys.windows) do
+for i, key in ipairs(config.keys.windows) do
     -- The keycode for the specified number key.
-
+    --
     -- Bind some keys.
     keys.global = awful.util.table.join(keys.global,
 
