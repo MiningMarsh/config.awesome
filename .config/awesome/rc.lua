@@ -784,7 +784,9 @@ for i, key in ipairs(config.keys.windows) do
                     -- Grab the client,
                     local toswap = awful.client.next(target, master)
 
-                    toswap:kill()
+    				if toswap then
+                        toswap:kill()
+    				end
                 end
             end
         )
