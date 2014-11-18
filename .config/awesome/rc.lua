@@ -323,7 +323,63 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + H = Focus left.
+    -- Close left.
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.left,
+        function()
+            local old = client.focus
+            if old then
+                awful.client.focus.bydirection("left")
+                if client.focus and client.focus ~= old then
+                    client.focus:kill()
+                    client.focus = old
+                end
+            end
+        end
+    ),
+
+    -- Close right
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.right,
+        function()
+            local old = client.focus
+            if old then
+                awful.client.focus.bydirection("right")
+                if client.focus and client.focus ~= old then
+                    client.focus:kill()
+                    client.focus = old
+                end
+            end
+        end
+    ),
+
+    -- Close up
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.up,
+        function()
+            local old = client.focus
+            if old then
+                awful.client.focus.bydirection("up")
+                if client.focus and client.focus ~= old then
+                    client.focus:kill()
+                    client.focus = old
+                end
+            end
+        end
+    ),
+
+    -- Close down
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.down,
+        function()
+            local old = client.focus
+            if old then
+                awful.client.focus.bydirection("down")
+                if client.focus and client.focus ~= old then
+                    client.focus:kill()
+                    client.focus = old
+                end
+            end
+        end
+    ),
+
+    -- Focus left.
     awful.key({config.keys.master}, config.keys.windows.left,
         function()
             awful.client.focus.bydirection("left")
@@ -331,7 +387,7 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + J = Focus down.
+    -- Focus down.
     awful.key({config.keys.master}, config.keys.windows.down,
         function()
             awful.client.focus.bydirection("down")
@@ -339,7 +395,7 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + K = Focus up.
+    -- Focus up.
     awful.key({config.keys.master}, config.keys.windows.up,
         function()
             awful.client.focus.bydirection("up")
@@ -347,7 +403,7 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + L = Focus right.
+    -- Focus right.
     awful.key({config.keys.master}, config.keys.windows.right,
         function()
             awful.client.focus.bydirection("right")
@@ -355,28 +411,28 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + Shift + H = Shift left.
+    -- Shift left.
     awful.key({config.keys.master, config.keys.move}, config.keys.windows.left,
         function()
             awful.client.swap.bydirection("left")
         end
     ),
 
-    -- Mod + Shift + J = Shift down.
+    -- Shift down.
     awful.key({config.keys.master, config.keys.move}, config.keys.windows.down,
         function()
             awful.client.swap.bydirection("down")
         end
     ),
 
-    -- Mod + Shift + K = Shift up.
+    -- Shift up.
     awful.key({config.keys.master, config.keys.move}, config.keys.windows.up,
         function()
             awful.client.swap.bydirection("up")
         end
     ),
 
-    -- Mod + Shift + L = Shift right.
+    -- Shift right.
     awful.key({config.keys.master, config.keys.move}, config.keys.windows.right,
         function()
             awful.client.swap.bydirection("right")
@@ -396,28 +452,56 @@ keys.global = awful.util.table.join(
     -- Mod + Shift + Q = Quit awesome.
     awful.key({config.keys.master}, "z", awesome.quit),
 
-    -- Mod + ] = Focus on next window.
+    -- Focus on next window.
     awful.key({config.keys.master}, config.keys.windows.next,
         function()
             awful.client.focus.byidx(1)
         end
     ),
 
-    -- Mod + [ = Focus on previous window.
+    -- Focus on previous window.
     awful.key({config.keys.master}, config.keys.windows.previous,
         function()
             awful.client.focus.byidx(-1)
         end
     ),
 
-    -- Mod + Shift + ] = Shift this window with the next window.
+    -- Close next window.
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.next,
+        function()
+            local old = client.focus
+            if old then
+            	awful.client.focus.byidx(1)
+            	if client.focus and client.focus ~= old then
+            		client.focus:kill()
+            	end
+            	client.focus = old
+            end
+        end
+    ),
+
+    -- Close previous window.
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.previous,
+        function()
+            local old = client.focus
+            if old then
+            	awful.client.focus.byidx(-1)
+            	if client.focus and client.focus ~= old then
+            		client.focus:kill()
+            	end
+            	client.focus = old
+            end
+        end
+    ),
+
+    -- Shift this window with the next window.
     awful.key({config.keys.master, config.keys.move}, config.keys.windows.next,
         function()
             awful.client.swap.byidx(1)
         end
     ),
 
-    -- Mod + Shift + [ = Shift this window with the previous window.
+    -- Shift this window with the previous window.
     awful.key({config.keys.master, config.keys.move}, config.keys.windows.previous,
         function()
             awful.client.swap.byidx(-1)
@@ -784,9 +868,9 @@ for i, key in ipairs(config.keys.windows) do
                     -- Grab the client,
                     local toswap = awful.client.next(target, master)
 
-    				if toswap then
+                    if toswap then
                         toswap:kill()
-    				end
+                    end
                 end
             end
         )
