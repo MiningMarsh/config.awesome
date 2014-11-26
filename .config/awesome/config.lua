@@ -1,50 +1,56 @@
-local gears     = require("gears")
 local awful     = require("awful")
-awful.rules     = require("awful.rules")
 awful.autofocus = require("awful.autofocus")
-local wibox     = require("wibox")
+awful.rules     = require("awful.rules")
 local beautiful = require("beautiful")
-local naughty   = require("naughty")
-local menubar   = require("menubar")
-local widget    = require("widget")
+local gears     = require("gears")
 local lain      = require("lain")
+local menubar   = require("menubar")
+local naughty   = require("naughty")
+local wibox     = require("wibox")
+local widget    = require("widget")
 
-return {desktops = {keys = {"#10",
-                            "#11",
-                            "#12",
-                            "#13",
-                            "#14",
-                            "#15",
-                            "#16",
-                            "#17",
-                            "#18",
-                            "#19"},
-                    layouts = {lain.layout.centerwork,
-                               lain.layout.uselesstile,
-                               lain.layout.uselesspiral}},
+return {layouts = {lain.layout.centerwork,
+                   lain.layout.uselesstile,
+                   lain.layout.uselesspiral,
+                   awful.layout.suit.floating},
 
-        windows = {keys = {'q',
-                           'w',
-                           'e',
-                           'r',
-                           't',
-                           'y',
-                           'u',
-                           'i',
-                           'o',
-                           'p'}},
+        terminal = "urxvt",
+        editor   = "vim",
 
-        startup = {"pidof compton || compton -f --no-fading-openclose -b",
+        startup = {"compton",
                    "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
                    "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
                    "amixer -c 1 sset Speaker,0 64"},
 
-        theme = {wallpaper = "/usr/local/Blood.jpg",
+        theme = {wallpaper = "~/.config/awesome/background",
                  font      = "Kremlin 8"},
 
-        shortcuts = {programs = {f="firefox",
-                                 t="urxvt -e cmus",
-                                 l="libreoffice",
-                                 u="urxvt",
-                                 v="vlc",
-                                 m="urxvt -e vifm"}}}
+        keys = {master = "Mod4",
+                move   = "Shift",
+                close  = "Control",
+                launch = "Mod1",
+
+                programs = {b = "firefox",
+                            f = "urxvt -e vifm",
+                            o = "libreoffice",
+                            m = "urxvt -e cmus",
+                            t = "urxvt",
+                            v = "vlc",
+            		        e = "urxvt -e vim"},
+
+                windows = {'q','w','e','r','t','y','u','i','o','p',
+
+                           previous = '[',
+                           next     = ']',
+                           up       = 'k',
+                           down     = 'j',
+                           left     = 'h',
+                           right    = 'l',
+                           current  = '\\'},
+
+                desktops = {"#10","#11","#12","#13","#14","#15","#16","#17",
+                            "#18","#19",
+
+                            previous = '-',
+                            next     = '=',
+                			current  = "BackSpace"}}}
