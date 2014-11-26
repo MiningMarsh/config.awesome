@@ -63,10 +63,6 @@ function object:new(width, height)
 
         volume = alsa:volume()
 
-        -- Draw underline.
-        cr:move_to(7, height - 1.5)
-        cr:line_to(width, height - 1.5)
-
         if math.floor(7 + (width - 7) * volume) ~= 7 then
             for i = 7, 7 + (width - 7) * volume do
                 local twidth = width - 7

@@ -39,14 +39,6 @@ do
     end)
 end
 
--- ####################
--- # Startup commands #
--- ####################
-
-for _, v in pairs(config.startup) do
-    awful.util.spawn(v)
-end
-
 -- #########
 -- # Theme #
 -- #########
@@ -301,6 +293,38 @@ keys.global = awful.util.table.join(
         end
     ),
 
+    -- Play = Toggle music.
+    awful.key({}, "XF86AudioPlay",
+        function()
+            awful.util.spawn("mpc toggle")
+            widget.alsa:update()
+        end
+    ),
+
+    -- Stop = Stop music.
+    awful.key({}, "XF86AudioStop",
+        function()
+            awful.util.spawn("mpc stop")
+            widget.alsa:update()
+        end
+    ),
+
+    -- Next = Next song.
+    awful.key({}, "XF86AudioNext",
+        function()
+            awful.util.spawn("mpc next")
+            widget.alsa:update()
+        end
+    ),
+
+    -- Previous = Previous song.
+    awful.key({}, "XF86AudioPrev",
+        function()
+            awful.util.spawn("mpc prev")
+            widget.alsa:update()
+        end
+    ),
+
     -- Volume Mute = Volume mute/unmute.
     awful.key({}, "XF86AudioMute",
         function()
@@ -480,6 +504,7 @@ keys.global = awful.util.table.join(
         end
     ),
 
+
     -- Close previous window.
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.previous,
         function()
@@ -555,6 +580,18 @@ keys.global = awful.util.table.join(
                 tagid = tagid - 1
             end
 
+            local tag = tags[tagid]
+            for _, client in pairs(tag:clients()) do
+                client:kill()
+            end
+        end
+    ),
+
+    -- Close windows on current tag.
+    awful.key({config.keys.master, config.keys.close}, config.keys.desktops.current,
+        function()
+            local tagid = awful.tag.getidx()
+            local tags = screens[mouse.screen].tags
             local tag = tags[tagid]
             for _, client in pairs(tag:clients()) do
                 client:kill()
@@ -721,6 +758,13 @@ keys.client = awful.util.table.join(
 
     -- Mod + Shift + C = Kill the client.
     awful.key({config.keys.master}, "x",
+        function(c)
+            c:kill()
+        end
+    ),
+
+    -- Close current window.
+    awful.key({config.keys.master, config.keys.close}, config.keys.windows.current,
         function(c)
             c:kill()
         end
@@ -991,3 +1035,12 @@ client.connect_signal("unfocus",
     function(c)
         c.border_color = beautiful.border_normal
     end)
+
+-- ####################
+-- # Startup commands #
+-- ####################
+
+for _, v in pairs(config.startup) do
+    awful.util.spawn_with_shell(v .. " &")
+end
+

@@ -17,7 +17,7 @@ return {layouts = {lain.layout.centerwork,
         terminal = "urxvt",
         editor   = "vim",
 
-        startup = {"compton -b",
+        startup = {"compton",
                    "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
                    "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
                    "amixer -c 1 sset Speaker,0 64"},
@@ -28,14 +28,15 @@ return {layouts = {lain.layout.centerwork,
         keys = {master = "Mod4",
                 move   = "Shift",
                 close  = "Control",
-            	launch = "Mod1",
+                launch = "Mod1",
 
                 programs = {b = "firefox",
                             f = "urxvt -e vifm",
-                            l = "libreoffice",
+                            o = "libreoffice",
                             m = "urxvt -e cmus",
-                            u = "urxvt",
-                            v = "vlc"},
+                            t = "urxvt",
+                            v = "vlc",
+            		        e = "urxvt -e vim"},
 
                 windows = {'q','w','e','r','t','y','u','i','o','p',
 
@@ -44,10 +45,12 @@ return {layouts = {lain.layout.centerwork,
                            up       = 'k',
                            down     = 'j',
                            left     = 'h',
-                           right    = 'l'},
+                           right    = 'l',
+                           current  = '\\'},
 
                 desktops = {"#10","#11","#12","#13","#14","#15","#16","#17",
                             "#18","#19",
 
                             previous = '-',
-                            next     = '='}}}
+                            next     = '=',
+                			current  = "BackSpace"}}}
