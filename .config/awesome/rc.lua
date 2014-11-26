@@ -240,13 +240,16 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
 
     right_layout:add(widget.spacer(5))
+    right_layout:add(widget.battery(16, 8))
+
+    right_layout:add(widget.spacer(5))
+    right_layout:add(widget.link(16, 8))
+
+    right_layout:add(widget.spacer(5))
     right_layout:add(widget.alsa(16, 8))
 
     right_layout:add(widget.spacer(5))
     right_layout:add(widget.cpu(20, 8))
-
-    right_layout:add(widget.spacer(5))
-    right_layout:add(widget.mem(20, 8))
 
     right_layout:add(widget.spacer(5))
     if s == 1 then
@@ -801,7 +804,7 @@ root.keys(keys.global)
 local buttons = {}
 
 buttons.client = awful.util.table.join(
-	-- Mouse 1 = Focus a client.
+    -- Mouse 1 = Focus a client.
     awful.button({}, 1,
         function (c)
             client.focus = c;
