@@ -1,5 +1,6 @@
 local make_widget = require("widget.make_widget")
 local link_factory = require("monitor.link")
+local graphic = require("graphic")
 
 function new(width, height, interface)
 
@@ -17,24 +18,27 @@ function new(width, height, interface)
     end
 
     -- Create the widget.
-    local link_monitor = make_widget(width, height, 5)
+    local link_monitor = make_widget(width, height, 1)
 
     -- Initialize the charge state.
     local quality = link:quality()
 
     -- Draws the widget.
     function link_monitor:draw(wibox, cr, width, height)
-        cr:move_to(0 , height - 0.5)
+        local triangle = graphic.polygon(cr)
+        local h = height - height * quality
+        local e = width * quality
+
+        cr:move_to(0.5, height - 0.5)
         cr:line_to(width - 0.5, height - 0.5)
-        cr:line_to(width - 0.5,  0)
-        cr:line_to(0.5,  height - 0.5)
+        cr:line_to(width - 0.5, 0)
         cr:stroke()
 
-        for i=1,width*quality do
-            cr:move_to(i - 0.5, height - 0.5)
-            cr:line_to(i - 0.5, ((height - 0.5) * (1 - (i/width))))
-        end
-        cr:stroke()
+        triangle:add_point(0.5, height - 0.5)
+        triangle:add_point(e - 0.5, height - 0.5)
+        triangle:add_point(e - 0.5, h)
+        triangle:draw()
+        cr:fill()
     end
 
     function link_monitor:update()

@@ -339,14 +339,14 @@ keys.global = awful.util.table.join(
     -- Birghtness Down = Decrease brightness.
     awful.key({}, "XF86MonBrightnessDown",
         function()
-            awful.util.spawn("xbacklight -dec 10")
+            awful.util.spawn("light decrease 10")
         end
     ),
 
     -- Birghtness Up = Increase brightness.
     awful.key({}, "XF86MonBrightnessUp",
         function()
-            awful.util.spawn("xbacklight -inc 10")
+            awful.util.spawn("light increase 10")
         end
     ),
 

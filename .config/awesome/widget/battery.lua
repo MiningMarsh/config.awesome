@@ -36,7 +36,7 @@ function new(width, height, battery_path)
         cr:line_to(width - 1.5, height - 2)
         cr:stroke()
 
-        cr:rectangle(0, 1, math.floor((width - 3.5) * charge + 1), height - 1.5)
+        cr:rectangle(0, 1, (width - 3.5) * charge + 1, height - 1.5)
 
         cr:fill()
     end

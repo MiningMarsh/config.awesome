@@ -1,5 +1,6 @@
 local make_widget = require("widget.make_widget")
 local alsa_factory = require("monitor.alsa")
+local graphic = require("graphic")
 
 local metatable = {}
 local object = setmetatable({}, metatable)
@@ -60,18 +61,19 @@ function object:new(width, height)
         end
         cr:move_to(4.5, 0)
         cr:line_to(4.5, height)
+        cr:stroke()
 
         volume = alsa:volume()
+        local h = height - (height - 2) * volume
+        local e = width - (width - 7) * (1 - volume)
 
-        if math.floor(7 + (width - 7) * volume) ~= 7 then
-            for i = 7, 7 + (width - 7) * volume do
-                local twidth = width - 7
-                cr:move_to(i - 0.5, height - 1)
-                cr:line_to(i - 0.5, height - 1.5 - (height - 2.5) * ((i - 7)/twidth))
-            end
-        end
+        local triangle = graphic.polygon(cr)
+        triangle:add_point(7, height - 1)
+        triangle:add_point(e, height - 1)
+        triangle:add_point(e, h - 1)
+        triangle:draw()
+        cr:fill()
 
-        cr:stroke()
     end
 
     instances[#instances + 1] = alsa_monitor

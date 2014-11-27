@@ -1,2 +1,2 @@
 return {graph = require("struct.graph"),
-        stack = require("struct.stack")}
+        queue = require("struct.queue")}

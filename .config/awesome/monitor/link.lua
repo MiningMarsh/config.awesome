@@ -10,12 +10,12 @@ function new(name)
     function link:quality()
         local file = assert(io.open("/proc/net/wireless"))
 
-        assert(file:read("*line"))
-        assert(file:read("*line"))
-        assert(file:read(7))
-        assert(file:read("*number"))
+        file:read("*line")
+        file:read("*line")
+        file:read(7)
+        file:read("*number")
 
-        return assert(file:read("*number")) / 100
+        return file:read("*number") / 100
     end
 
     return link
