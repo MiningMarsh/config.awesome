@@ -1,6 +1,7 @@
 local cpu_factory = require("monitor.cpu")
 local graph_factory = require("struct.graph")
 local make_widget = require("widget.make_widget")
+local graphic = require("graphic")
 
 function new(width, height)
 
@@ -17,27 +18,23 @@ function new(width, height)
     -- Draws the widget.
     function cpu_monitor:draw(wibox, cr, width, height)
 
+        cr:move_to(0, height - 0.5)
+        cr:line_to(width, height - 0.5)
+        cr:stroke()
+
         local function h(i)
             return height - (height * graph:peek(width - i + 1)) + 0.5
         end
 
-        cr:move_to(0, height - 0.5)
-        cr:line_to(width, height - 0.5)
-
-        cr:move_to(0.5, height)
-        cr:line_to(0.5, h(1))
-
-        cr:move_to(width - 0.5, height)
-        cr:line_to(width - 0.5, h(width))
-
-        cr:move_to(0, h(1))
-        for i = 2, width do
-            cr:line_to(i - 0.5, h(i))
-            cr:line_to(i - 0.5, height)
-            cr:line_to(i - 0.5, h(i))
+        local g = graphic.polygon(cr)
+        g:add_point(width, height)
+        g:add_point(0, height)
+        for i = 0, width do
+            g:add_point(i, h(i))
         end
+        g:draw()
+        cr:fill()
 
-        cr:stroke()
     end
 
     function cpu_monitor:update()

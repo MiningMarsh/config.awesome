@@ -14,6 +14,14 @@ local widget    = require("widget")
 local lain      = require("lain")
 local config    = require("config")
 
+-- ##############################
+-- # Restart if not custom path #
+-- ##############################
+
+if io.popen("echo $PATH | grep /home/joshua/.bin"):read("*all") == "" then
+    awesome.restart()
+end
+
 -- ##################
 -- # Error Handling #
 -- ##################
@@ -31,8 +39,8 @@ do
         -- Display a notification to the user letting him know that
         -- there was an error.
         naughty.notify({preset = naughty.config.presets.critical,
-        title = "Oops, an error happened!",
-        text = err})
+                        title = "Oops, an error happened!",
+                        text = err})
 
         -- We just finished handling the error.
         in_error = false
@@ -280,6 +288,33 @@ local keys = {}
 -- Global key bindings.
 keys.global = awful.util.table.join(
 
+    -- Toggle Touchpad = toggle touchpad.
+    awful.key({}, "XF86TouchpadToggle",
+        function()
+            local file
+            file = io.popen("toggle-touchpad")
+            local percent = file:read("*l")
+            file:close()
+            naughty.notify({preset = naughty.config.presets.low,
+                            title = "Touchpad",
+                            text = percent})
+        end
+    ),
+
+    -- Display = Toggle display mode.
+    awful.key({}, "XF86Display",
+        function()
+            awful.util.spawn("set-display")
+            local file
+            file = io.open("/tmp/display_mode")
+            local percent = file:read("*l")
+            file:close()
+            naughty.notify({preset = naughty.config.presets.low,
+                            title = "External Display",
+                            text = percent})
+        end
+    ),
+
     -- Volume Up = Volume up.
     awful.key({}, "XF86AudioRaiseVolume",
         function()
@@ -296,11 +331,37 @@ keys.global = awful.util.table.join(
         end
     ),
 
+    -- Pause = Toggle music.
+    awful.key({}, "Pause",
+        function()
+            awful.util.spawn("mpc toggle")
+        end
+    ),
+
+    -- Break = Stop music.
+    awful.key({}, "Break",
+        function()
+            awful.util.spawn("mpc stop")
+        end
+    ),
+
     -- Play = Toggle music.
     awful.key({}, "XF86AudioPlay",
         function()
             awful.util.spawn("mpc toggle")
-            widget.alsa:update()
+        end
+    ),
+
+    -- Print = Take screenshot.
+    awful.key({}, "Print",
+        function()
+            local file
+            file = io.popen("screenshot")
+            local percent = file:read("*l")
+            file:close()
+            naughty.notify({preset = naughty.config.presets.low,
+                            title = "Screenshot",
+                            text = percent})
         end
     ),
 
@@ -308,7 +369,6 @@ keys.global = awful.util.table.join(
     awful.key({}, "XF86AudioStop",
         function()
             awful.util.spawn("mpc stop")
-            widget.alsa:update()
         end
     ),
 
@@ -316,7 +376,6 @@ keys.global = awful.util.table.join(
     awful.key({}, "XF86AudioNext",
         function()
             awful.util.spawn("mpc next")
-            widget.alsa:update()
         end
     ),
 
@@ -324,7 +383,6 @@ keys.global = awful.util.table.join(
     awful.key({}, "XF86AudioPrev",
         function()
             awful.util.spawn("mpc prev")
-            widget.alsa:update()
         end
     ),
 
@@ -339,14 +397,26 @@ keys.global = awful.util.table.join(
     -- Birghtness Down = Decrease brightness.
     awful.key({}, "XF86MonBrightnessDown",
         function()
-            awful.util.spawn("light decrease 10")
+            local file
+            file = io.popen("light decrease 25")
+            local percent = "Current: " .. file:read("*number") .. "%"
+            file:close()
+            naughty.notify({preset = naughty.config.presets.low,
+                            title = "Brightness",
+                            text = percent})
         end
     ),
 
     -- Birghtness Up = Increase brightness.
     awful.key({}, "XF86MonBrightnessUp",
         function()
-            awful.util.spawn("light increase 10")
+            local file
+            file = io.popen("light increase 25")
+            local percent = "Current: " .. file:read("*number") .. "%"
+            file:close()
+            naughty.notify({preset = naughty.config.presets.low,
+                            title = "Brightness",
+                            text = percent})
         end
     ),
 
@@ -743,7 +813,10 @@ for key, program in pairs(config.keys.programs) do
         keys.global,
         awful.key({config.keys.master, config.keys.launch}, key,
             function()
-                awful.util.spawn(program)
+                naughty.notify({preset = naughty.config.presets.low,
+                                title = "Launching Program",
+                                text = program.name})
+                awful.util.spawn(program.command)
             end
         )
     )
@@ -991,7 +1064,7 @@ awful.rules.rules = {-- All clients will match this rule.
                     {rule = {class = "Plugin-container"},
                      properties = {floating = true}},
                     {rule = {class = "URxvt"},
-                     properties = {size_hints_honor = true}},
+                     properties = {size_hints_honor = false}},
                     {rule = {class = "pinentry"},
                      properties = {floating = true}}}
                      -- Set Firefox to always map on tags number 2 of screen 1.
@@ -1044,6 +1117,6 @@ client.connect_signal("unfocus",
 -- ####################
 
 for _, v in pairs(config.startup) do
-    awful.util.spawn_with_shell(v .. " &")
+    awful.util.spawn_with_shell(v)
 end
 
