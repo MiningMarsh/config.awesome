@@ -23,7 +23,7 @@ function new(width, height)
         cr:stroke()
 
         local function h(i)
-            return height - (height * graph:peek(width - i + 1)) + 0.5
+            return height - (height * graph:peek(width - i + 1))
         end
 
         local g = graphic.polygon(cr)

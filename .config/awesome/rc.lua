@@ -13,6 +13,7 @@ local menubar   = require("menubar")
 local widget    = require("widget")
 local lain      = require("lain")
 local config    = require("config")
+local helper    = require("helper")
 
 -- ##############################
 -- # Restart if not custom path #
@@ -130,8 +131,6 @@ function tags:byidx(idx)
     end
 end
 
-
-
 -- Give each screen a tag table.
 for s = 1, screen.count() do
     screens[s] = {}
@@ -239,11 +238,25 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
 
+    local temp_widget = wibox.widget.textbox()
+    local temp_file = io.popen("temperature")
+    temp_widget:set_text(temp_file:read("*n"))
+    temp_file:close()
+    local update_timer = timer({timeout = 5})
+    update_timer:connect_signal("timeout", function()
+        local temp_file = io.popen("temperature")
+        temp_widget:set_text(temp_file:read("*n"))
+        temp_file:close()
+    end)
+    update_timer:start()
     right_layout:add(widget.spacer(5))
-    right_layout:add(widget.battery(16, 8))
+    right_layout:add(temp_widget)
 
     right_layout:add(widget.spacer(5))
     right_layout:add(widget.link(16, 8))
+
+    right_layout:add(widget.spacer(5))
+    right_layout:add(widget.battery(16, 8))
 
     right_layout:add(widget.spacer(5))
     right_layout:add(widget.alsa(16, 8))
@@ -252,6 +265,7 @@ for s = 1, screen.count() do
     right_layout:add(widget.cpu(20, 8))
 
     right_layout:add(widget.spacer(5))
+
     if s == 1 then
         right_layout:add(wibox.widget.systray())
     end
@@ -298,6 +312,19 @@ keys.global = awful.util.table.join(
             naughty.notify({preset = naughty.config.presets.low,
                             title = "Touchpad",
                             text = percent})
+        end
+    ),
+
+    -- Toggle Eco Mode = Toggle wireless.
+    awful.key({}, "plusminus",
+        function()
+            local file
+            file = io.popen("toggle-wireless")
+            local status = file:read("*l")
+            file:close()
+            naughty.notify({preset = naughty.config.presets.low,
+                            title = "Wireless",
+                            text = status})
         end
     ),
 
@@ -423,88 +450,56 @@ keys.global = awful.util.table.join(
     -- Close left.
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.left,
         function()
-            local old = client.focus
-            if old then
-                awful.client.focus.bydirection("left")
-                if client.focus and client.focus ~= old then
-                    client.focus:kill()
-                    client.focus = old
-                end
-            end
+            helper.client.active.direction:close("left")
         end
     ),
 
     -- Close right
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.right,
         function()
-            local old = client.focus
-            if old then
-                awful.client.focus.bydirection("right")
-                if client.focus and client.focus ~= old then
-                    client.focus:kill()
-                    client.focus = old
-                end
-            end
+            helper.client.active.direction:close("right")
         end
     ),
 
     -- Close up
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.up,
         function()
-            local old = client.focus
-            if old then
-                awful.client.focus.bydirection("up")
-                if client.focus and client.focus ~= old then
-                    client.focus:kill()
-                    client.focus = old
-                end
-            end
+            helper.client.active.direction:close("up")
         end
     ),
 
     -- Close down
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.down,
         function()
-            local old = client.focus
-            if old then
-                awful.client.focus.bydirection("down")
-                if client.focus and client.focus ~= old then
-                    client.focus:kill()
-                    client.focus = old
-                end
-            end
+            helper.client.active.direction:close("down")
         end
     ),
 
     -- Focus left.
     awful.key({config.keys.master}, config.keys.windows.left,
         function()
-            awful.client.focus.bydirection("left")
-            if client.focus then client.focus:raise() end
+            helper.client.active.direction:focus("left")
         end
     ),
 
     -- Focus down.
     awful.key({config.keys.master}, config.keys.windows.down,
         function()
-            awful.client.focus.bydirection("down")
-            if client.focus then client.focus:raise() end
+            helper.client.active.direction:focus("down")
         end
     ),
 
     -- Focus up.
     awful.key({config.keys.master}, config.keys.windows.up,
         function()
-            awful.client.focus.bydirection("up")
-            if client.focus then client.focus:raise() end
+            helper.client.active.direction:focus("up")
         end
     ),
 
     -- Focus right.
     awful.key({config.keys.master}, config.keys.windows.right,
         function()
-            awful.client.focus.bydirection("right")
-            if client.focus then client.focus:raise() end
+            helper.client.active.direction:focus("right")
         end
     ),
 
@@ -566,14 +561,7 @@ keys.global = awful.util.table.join(
     -- Close next window.
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.next,
         function()
-            local old = client.focus
-            if old then
-                awful.client.focus.byidx(1)
-                if client.focus and client.focus ~= old then
-                    client.focus:kill()
-                end
-                client.focus = old
-            end
+            helper.client.active.idx:close(1)
         end
     ),
 
@@ -581,14 +569,7 @@ keys.global = awful.util.table.join(
     -- Close previous window.
     awful.key({config.keys.master, config.keys.close}, config.keys.windows.previous,
         function()
-            local old = client.focus
-            if old then
-                awful.client.focus.byidx(-1)
-                if client.focus and client.focus ~= old then
-                    client.focus:kill()
-                end
-                client.focus = old
-            end
+            helper.client.active.idx:close(-1)
         end
     ),
 
@@ -623,127 +604,74 @@ keys.global = awful.util.table.join(
     -- Close windows on next tag.
     awful.key({config.keys.master, config.keys.close}, config.keys.desktops.next,
         function()
-            local tagid = awful.tag.getidx()
-            local tags = screens[mouse.screen].tags
-            local tagsize = #tags
-
-            if tagid == tagsize then
-                tagid = 1
-            else
-                tagid = tagid + 1
-            end
-
-            local tag = tags[tagid]
-            for _, client in pairs(tag:clients()) do
-                client:kill()
-            end
+            helper.tag.idx:kill()
         end
     ),
 
     -- Close windows on previous tag.
     awful.key({config.keys.master, config.keys.close}, config.keys.desktops.previous,
         function()
-            local tagid = awful.tag.getidx()
-            local tags = screens[mouse.screen].tags
-            local tagsize = #tags
-
-            if tagid == 1 then
-                tagid = tagsize
-            else
-                tagid = tagid - 1
-            end
-
-            local tag = tags[tagid]
-            for _, client in pairs(tag:clients()) do
-                client:kill()
-            end
+            helper.tag.idx:kill(-1)
         end
     ),
 
     -- Close windows on current tag.
     awful.key({config.keys.master, config.keys.close}, config.keys.desktops.current,
         function()
-            local tagid = awful.tag.getidx()
-            local tags = screens[mouse.screen].tags
-            local tag = tags[tagid]
-            for _, client in pairs(tag:clients()) do
-                client:kill()
-            end
+            helper.tag:kill(helper.tag:focused())
         end
     ),
 
     -- Move window to previous tag.
     awful.key({config.keys.master, config.keys.move}, config.keys.desktops.previous,
         function()
-            local tagid = awful.tag.getidx()
-            local tags = screens[mouse.screen].tags
-            local tagsize = #tags
-
-            if tagid == 1 then
-                tagid = tagsize
-            else
-                tagid = tagid - 1
-            end
-
-            awful.client.movetotag(tags[tagid])
-            awful.tag.viewprev()
+            helper.client.active.idx:move(-1)
         end
     ),
 
     -- Move window to next tag.
     awful.key({config.keys.master, config.keys.move}, config.keys.desktops.next,
         function()
-            local tagid = awful.tag.getidx()
-            local tags = screens[mouse.screen].tags
-            local tagsize = #tags
-
-            if tagid == tagsize then
-                tagid = 1
-            else
-                tagid = tagid + 1
-            end
-
-            awful.client.movetotag(tags[tagid])
-            awful.tag.viewnext()
+            helper.client.active.idx:move(1)
         end
     ),
 
-    -- Mod + . = Increment master window factor.
-    awful.key({config.keys.master}, ".",
+    -- Mod + Launch + L = Increment master window factor.
+    awful.key({config.keys.master, config.keys.launch}, "l",
         function()
             awful.tag.incmwfact(0.05)
         end
     ),
 
-    -- Mod + , = Decrement master window factor.
-    awful.key({config.keys.master}, ",",
+    -- Mod + Launch + H = Decrement master window factor.
+    awful.key({config.keys.master, config.keys.launch}, "h",
         function()
             awful.tag.incmwfact(-0.05)
         end
     ),
 
-    -- Mod + . = Increment window factor.
-    awful.key({config.keys.master, config.keys.move}, ".",
+    -- Mod + Launch + J = Increment window factor.
+    awful.key({config.keys.master, config.keys.launch}, "j",
         function()
-            awful.client.incwfact(0.05)
+            helper.client.focused:incsize(0.05)
         end
     ),
 
-    -- Mod + , = Decrement window factor.
-    awful.key({config.keys.master, config.keys.move}, ",",
+    -- Mod + Launch + K = Decrement window factor.
+    awful.key({config.keys.master, config.keys.launch}, "k",
         function()
-            awful.client.incwfact(-0.05)
+            helper.client.focused:incsize(-0.05)
         end
     ),
 
-    -- Mod + ; = Decrement the number of master config.windows.
+    -- Mod + ; = Decrement the number of master windows.
     awful.key({config.keys.master}, ";",
         function()
             awful.tag.incnmaster(-1)
         end
     ),
 
-    -- Mod + Shift + ' = Increment the number of master config.windows.
+    -- Mod + Shift + ' = Increment the number of master windows.
     awful.key({config.keys.master}, "'",
         function()
             awful.tag.incnmaster(1)
@@ -885,39 +813,21 @@ for i, key in ipairs(config.keys.desktops)  do
         -- Mod + # = View tag.
         awful.key({config.keys.master}, key,
             function()
-                local screen = mouse.screen
-                local tag = awful.tag.gettags(screen)[i]
-                if tag then
-                    awful.tag.viewonly(tag)
-                end
+                helper.tag:focus(i)
             end
         ),
 
         -- Mod + Shift + # = Move client to tag.
         awful.key({config.keys.master, config.keys.move}, key,
             function()
-                if client.focus then
-                    local tag = awful.tag.gettags(client.focus.screen)[i]
-                    if tag then
-                        awful.client.movetotag(tag)
-                        awful.tag.viewonly(tag)
-                    end
-                end
+                helper.client.focused:move(i)
             end
         ),
 
         -- Mod + Control + # = Kill all clients on tag.
         awful.key({config.keys.master, config.keys.close}, key,
             function()
-                local tag
-                if not client.focus then
-                    tag = awful.tag.gettags(mouse.screen)[i]
-                else
-                    tag = awful.tag.gettags(client.focus.screen)[i]
-                end
-                for _, client in pairs(tag:clients()) do
-                    client:kill()
-                end
+                helper.tag:kill(i)
             end
         )
 
@@ -934,84 +844,21 @@ for i, key in ipairs(config.keys.windows) do
         -- Mod + # = View client.
         awful.key({config.keys.master}, key,
             function()
-                -- Store the focused client.
-                local focus = client.focus
-
-                -- Get the master client.
-                local master = awful.client.getmaster()
-
-                -- Find out the position of the master relative to the focused
-                -- client.
-                local focusnum = 0
-                while focus ~= awful.client.next(focusnum, master) do
-                    focusnum = focusnum + 1
-                end
-
-                local target = i - focusnum - 1
-
-                -- Get number of clients.
-                local numclients = 1
-                while master ~= awful.client.next(numclients, master) do
-                    numclients = numclients + 1
-                end
-
-                -- Change focus if we can.
-                if target + focusnum < numclients then
-                    awful.client.focus.byidx(target)
-                end
+                helper.client.active:focus(i)
             end
         ),
 
         -- Mod + Shift + # = Swap client.
         awful.key({config.keys.master, config.keys.move}, key,
-            function(c)
-                -- Store the focused client.
-                local focus = client.focus
-
-                -- Get the master client.
-                local master = awful.client.getmaster()
-
-                local target = i - 1
-
-                -- Get number of clients.
-                local numclients = 1
-                while master ~= awful.client.next(numclients, master) do
-                    numclients = numclients + 1
-                end
-
-                -- Swap if we can
-                if target < numclients then
-                    -- Grab the client,
-                    local toswap = awful.client.next(target, master)
-
-                    toswap:swap(focus)
-                end
+            function()
+                helper.client.focused:swap(i)
             end
         ),
 
         -- Mod + Control + # = Kill client.
         awful.key({config.keys.master, config.keys.close}, key,
-            function(c)
-                -- Get the master client.
-                local master = awful.client.getmaster()
-
-                local target = i - 1
-
-                -- Get number of clients.
-                local numclients = 1
-                while master ~= awful.client.next(numclients, master) do
-                    numclients = numclients + 1
-                end
-
-                -- Swap if we can
-                if target < numclients then
-                    -- Grab the client,
-                    local toswap = awful.client.next(target, master)
-
-                    if toswap then
-                        toswap:kill()
-                    end
-                end
+            function()
+                helper.client.active:kill(i)
             end
         )
     )
