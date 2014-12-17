@@ -2,18 +2,18 @@
 -- # Libraries #
 -- #############
 
-local gears     = require("gears")
 local awful     = require("awful")
-awful.rules     = require("awful.rules")
 awful.autofocus = require("awful.autofocus")
-local wibox     = require("wibox")
+awful.rules     = require("awful.rules")
 local beautiful = require("beautiful")
-local naughty   = require("naughty")
-local menubar   = require("menubar")
-local widget    = require("widget")
-local lain      = require("lain")
 local config    = require("config")
-local helper    = require("helper")
+local gears     = require("gears")
+local lain      = require("lain")
+local menubar   = require("menubar")
+local naughty   = require("naughty")
+local viml      = require("viml")
+local wibox     = require("wibox")
+local widget    = require("widget")
 
 -- ##############################
 -- # Restart if not custom path #
@@ -39,9 +39,11 @@ do
 
         -- Display a notification to the user letting him know that
         -- there was an error.
-        naughty.notify({preset = naughty.config.presets.critical,
-                        title = "Oops, an error happened!",
-                        text = err})
+        naughty.notify{
+            preset = naughty.config.presets.critical,
+            text   = err,
+            title  = "Oops, an error happened!",
+        }
 
         -- We just finished handling the error.
         in_error = false
@@ -58,14 +60,6 @@ beautiful.init(".config/awesome/theme.lua")
 -- #############
 -- # Variables #
 -- #############
-
--- Auto populate some things if we need to.
-if not config.desktops or not config.desktops.number then
-    if not config.desktops then
-        config.desktops = {}
-    end
-    config.desktops.number = #(config.keys.desktops)
-end
 
 -- Add other things that we need.
 local cmd = {}
@@ -108,28 +102,11 @@ end
 local screens = {}
 
 -- The table of tags.
-local tags = awful.tag(config.keys.desktops,
-                       s,
-                       config.layouts[1]
-             )
-
-function tags:byidx(idx)
-    local tagid = awful.tag.getidx()
-    local tags = screens[mouse.screen].tags
-    local tagsize = #tags
-
-
-    if tagid == 1 then
-        tagid = tagsize
-    else
-        tagid = tagid - 1
-    end
-
-    local tag = tags[tagid]
-    for _, client in pairs(tag:clients()) do
-        client:kill()
-    end
-end
+local tags = awful.tag(
+    {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+    s,
+    config.layouts[1]
+)
 
 -- Give each screen a tag table.
 for s = 1, screen.count() do
@@ -149,14 +126,39 @@ local menu = {}
 menu.sub = {}
 
 -- This is awesomes sub-menu.
-menu.sub.awesome = {{"manual",      cmd.terminal:spawn("man awesome")  },
-                    {"edit config", cmd.terminal:edit(awesome.conffile)},
-                    {"restart",     awesome.restart                    },
-                    {"quit",        awesome.quit                       }}
+menu.sub.awesome = {
+    {
+        "manual",
+        cmd.terminal:spawn("man awesome")
+    },
+    {
+        "edit config",
+        cmd.terminal:edit(awesome.conffile)
+    },
+    {
+        "restart",
+        awesome.restart
+    },
+    {
+        "quit",
+        awesome.quit
+    }
+}
 
 -- This is the main menu.
-menu.main = awful.menu({items = {{"awesome",       menu.sub.awesome, beautiful.awesome_icon},
-                                 {"open terminal", cmd.terminal:new()                      }}})
+menu.main = awful.menu{
+    items = {
+        {
+            "awesome",
+            menu.sub.awesome,
+            beautiful.awesome_icon
+        },
+        {
+            "open terminal",
+            cmd.terminal:new()
+        }
+    }
+}
 
 -- Set the terminal for applications that require it
 menubar.utils.terminal = cmd.terminal:new()
@@ -196,7 +198,11 @@ panels.taskbar.buttons = awful.util.table.join(
                 instance:hide()
                 instance = nil
             else
-                instance = awful.menu.clients({theme = {width = 250}})
+                instance = awful.menu.clients{
+                    theme = {
+                        width = 250
+                    }
+                }
             end
         end
     ),
@@ -447,90 +453,6 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Close left.
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.left,
-        function()
-            helper.client.active.direction:close("left")
-        end
-    ),
-
-    -- Close right
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.right,
-        function()
-            helper.client.active.direction:close("right")
-        end
-    ),
-
-    -- Close up
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.up,
-        function()
-            helper.client.active.direction:close("up")
-        end
-    ),
-
-    -- Close down
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.down,
-        function()
-            helper.client.active.direction:close("down")
-        end
-    ),
-
-    -- Focus left.
-    awful.key({config.keys.master}, config.keys.windows.left,
-        function()
-            helper.client.active.direction:focus("left")
-        end
-    ),
-
-    -- Focus down.
-    awful.key({config.keys.master}, config.keys.windows.down,
-        function()
-            helper.client.active.direction:focus("down")
-        end
-    ),
-
-    -- Focus up.
-    awful.key({config.keys.master}, config.keys.windows.up,
-        function()
-            helper.client.active.direction:focus("up")
-        end
-    ),
-
-    -- Focus right.
-    awful.key({config.keys.master}, config.keys.windows.right,
-        function()
-            helper.client.active.direction:focus("right")
-        end
-    ),
-
-    -- Shift left.
-    awful.key({config.keys.master, config.keys.move}, config.keys.windows.left,
-        function()
-            awful.client.swap.bydirection("left")
-        end
-    ),
-
-    -- Shift down.
-    awful.key({config.keys.master, config.keys.move}, config.keys.windows.down,
-        function()
-            awful.client.swap.bydirection("down")
-        end
-    ),
-
-    -- Shift up.
-    awful.key({config.keys.master, config.keys.move}, config.keys.windows.up,
-        function()
-            awful.client.swap.bydirection("up")
-        end
-    ),
-
-    -- Shift right.
-    awful.key({config.keys.master, config.keys.move}, config.keys.windows.right,
-        function()
-            awful.client.swap.bydirection("right")
-        end
-    ),
-
     -- Mod + Enter = Spawn terminal.
     awful.key({config.keys.master}, "Return",
         function()
@@ -544,98 +466,6 @@ keys.global = awful.util.table.join(
     -- Mod + Shift + Q = Quit awesome.
     awful.key({config.keys.master}, "z", awesome.quit),
 
-    -- Focus on next window.
-    awful.key({config.keys.master}, config.keys.windows.next,
-        function()
-            awful.client.focus.byidx(1)
-        end
-    ),
-
-    -- Focus on previous window.
-    awful.key({config.keys.master}, config.keys.windows.previous,
-        function()
-            awful.client.focus.byidx(-1)
-        end
-    ),
-
-    -- Close next window.
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.next,
-        function()
-            helper.client.active.idx:close(1)
-        end
-    ),
-
-
-    -- Close previous window.
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.previous,
-        function()
-            helper.client.active.idx:close(-1)
-        end
-    ),
-
-    -- Shift this window with the next window.
-    awful.key({config.keys.master, config.keys.move}, config.keys.windows.next,
-        function()
-            awful.client.swap.byidx(1)
-        end
-    ),
-
-    -- Shift this window with the previous window.
-    awful.key({config.keys.master, config.keys.move}, config.keys.windows.previous,
-        function()
-            awful.client.swap.byidx(-1)
-        end
-    ),
-
-    -- View previous tag.
-    awful.key({config.keys.master}, config.keys.desktops.previous,
-        function()
-            awful.tag.viewprev()
-        end
-    ),
-
-    -- View next tag.
-    awful.key({config.keys.master}, config.keys.desktops.next,
-        function()
-            awful.tag.viewnext()
-        end
-    ),
-
-    -- Close windows on next tag.
-    awful.key({config.keys.master, config.keys.close}, config.keys.desktops.next,
-        function()
-            helper.tag.idx:kill()
-        end
-    ),
-
-    -- Close windows on previous tag.
-    awful.key({config.keys.master, config.keys.close}, config.keys.desktops.previous,
-        function()
-            helper.tag.idx:kill(-1)
-        end
-    ),
-
-    -- Close windows on current tag.
-    awful.key({config.keys.master, config.keys.close}, config.keys.desktops.current,
-        function()
-            helper.tag:kill(helper.tag:focused())
-        end
-    ),
-
-    -- Move window to previous tag.
-    awful.key({config.keys.master, config.keys.move}, config.keys.desktops.previous,
-        function()
-            helper.client.active.idx:move(-1)
-        end
-    ),
-
-    -- Move window to next tag.
-    awful.key({config.keys.master, config.keys.move}, config.keys.desktops.next,
-        function()
-            helper.client.active.idx:move(1)
-        end
-    ),
-
     -- Mod + Launch + L = Increment master window factor.
     awful.key({config.keys.master, config.keys.launch}, "l",
         function()
@@ -647,20 +477,6 @@ keys.global = awful.util.table.join(
     awful.key({config.keys.master, config.keys.launch}, "h",
         function()
             awful.tag.incmwfact(-0.05)
-        end
-    ),
-
-    -- Mod + Launch + J = Increment window factor.
-    awful.key({config.keys.master, config.keys.launch}, "j",
-        function()
-            helper.client.focused:incsize(0.05)
-        end
-    ),
-
-    -- Mod + Launch + K = Decrement window factor.
-    awful.key({config.keys.master, config.keys.launch}, "k",
-        function()
-            helper.client.focused:incsize(-0.05)
         end
     ),
 
@@ -750,119 +566,14 @@ for key, program in pairs(config.keys.programs) do
     )
 end
 
--- Keys to control clients.
-keys.client = awful.util.table.join(
-
-    -- Mod + F = Toggle fullscreen.
-    awful.key({config.keys.master}, "f",
-        function(c)
-            c.fullscreen = not c.fullscreen
-        end
-    ),
-
-    -- Mod + Shift + C = Kill the client.
-    awful.key({config.keys.master}, "x",
-        function(c)
-            c:kill()
-        end
-    ),
-
-    -- Close current window.
-    awful.key({config.keys.master, config.keys.close}, config.keys.windows.current,
-        function(c)
-            c:kill()
-        end
-    ),
-
-    -- Mod + Ctrl + Space = Toggle Floating.
-    awful.key({config.keys.master, config.keys.close}, "space", awful.client.floating.toggle),
-
-    -- Mod + Ctrl + Enter = Swap client with the master window.
-    awful.key({config.keys.master, config.keys.close}, "Return",
-        function(c)
-            c:swap(awful.client.getmaster())
-        end
-    ),
-
-
-    -- Mod + N = Minimize the current client.
-    awful.key({config.keys.master}, "n",
-        function(c)
-            -- The client currently has the input focus, so it cannot be
-            -- minimized, since minimized clients can't have the focus.
-            c.minimized = true
-        end
-    ),
-
-    -- Mod + M = Toggle maximize.
-    awful.key({config.keys.master}, "m",
-        function(c)
-            c.maximized_horizontal = not c.maximized_horizontal
-            c.maximized_vertical = not c.maximized_vertical
-        end
-    )
+keys.global = awful.util.table.join(
+    keys.global,
+    viml:keys{
+        commands  = config.keys.commands,
+        master    = config.keys.master,
+        movements = config.keys.movements,
+    }
 )
-
--- Bind desktop keys.
-for i, key in ipairs(config.keys.desktops)  do
-    -- The keycode for the specified number key.
-
-    -- Bind some keys.
-    keys.global = awful.util.table.join(keys.global,
-
-        -- Mod + # = View tag.
-        awful.key({config.keys.master}, key,
-            function()
-                helper.tag:focus(i)
-            end
-        ),
-
-        -- Mod + Shift + # = Move client to tag.
-        awful.key({config.keys.master, config.keys.move}, key,
-            function()
-                helper.client.focused:move(i)
-            end
-        ),
-
-        -- Mod + Control + # = Kill all clients on tag.
-        awful.key({config.keys.master, config.keys.close}, key,
-            function()
-                helper.tag:kill(i)
-            end
-        )
-
-    )
-end
-
--- Bind window keys.
-for i, key in ipairs(config.keys.windows) do
-    -- The keycode for the specified number key.
-    --
-    -- Bind some keys.
-    keys.global = awful.util.table.join(keys.global,
-
-        -- Mod + # = View client.
-        awful.key({config.keys.master}, key,
-            function()
-                helper.client.active:focus(i)
-            end
-        ),
-
-        -- Mod + Shift + # = Swap client.
-        awful.key({config.keys.master, config.keys.move}, key,
-            function()
-                helper.client.focused:swap(i)
-            end
-        ),
-
-        -- Mod + Control + # = Kill client.
-        awful.key({config.keys.master, config.keys.close}, key,
-            function()
-                helper.client.active:kill(i)
-            end
-        )
-    )
-end
 
 -- Set keys
 root.keys(keys.global)
@@ -877,7 +588,7 @@ buttons.client = awful.util.table.join(
     -- Mouse 1 = Focus a client.
     awful.button({}, 1,
         function (c)
-            client.focus = c;
+            client.focus = c
             c:raise()
         end
     ),
@@ -951,13 +662,15 @@ end)
 client.connect_signal("focus",
     function(c)
         c.border_color = beautiful.border_focus
-    end)
+    end
+)
 
 -- Signal to be thrown when a client is unfocused.
 client.connect_signal("unfocus",
     function(c)
         c.border_color = beautiful.border_normal
-    end)
+    end
+)
 
 -- ####################
 -- # Startup commands #
