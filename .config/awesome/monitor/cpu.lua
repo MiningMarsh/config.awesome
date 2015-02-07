@@ -32,10 +32,10 @@ local function new()
     end
 
     function cpu:temperature()
-        local file = assert(io.popen(" sensors | grep 'Core 0' | awk '{print $3;}' | cut -d'+' -f2 | cut -d'.' -f 1"))
-        local percent = assert(file:read("*number")) / 90
+        local file = io.popen("temperature")
+        local temperature = file:read("*n")
         file:close()
-        return percent
+        return temperature
     end
 
     return cpu

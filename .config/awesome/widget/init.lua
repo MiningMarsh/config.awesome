@@ -4,5 +4,4 @@ return {make_widget = require("widget.make_widget"),
         cpu         = require("widget.cpu"),
         mem         = require("widget.mem"),
         alsa        = require("widget.alsa"),
-        temp        = require("widget.temp"),
         spacer      = require("widget.spacer")}

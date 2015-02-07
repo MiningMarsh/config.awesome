@@ -1,6 +1,10 @@
 return {
-    client = require("viml.current.client"),
-    master = require("viml.current.master"),
-    screen = require("viml.current.screen"),
-    tag    = require("viml.current.tag"),
+    client     = require("viml.current.client"),
+    close      = require("viml.current.close"),
+    fullscreen = require("viml.current.fullscreen"),
+    master     = require("viml.current.master"),
+    maximize   = require("viml.current.maximize"),
+    minimize   = require("viml.current.minimize"),
+    screen     = require("viml.current.screen"),
+    tag        = require("viml.current.tag"),
 }

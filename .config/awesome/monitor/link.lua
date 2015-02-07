@@ -22,7 +22,15 @@ function new(name)
         file:read(7)
         file:read("*number")
 
-        return file:read("*number") / 100
+        local num = file:read("*number")
+
+        file:close()
+
+        if num then
+            return num / 100
+        else
+            return 0
+        end
     end
 
     return link

@@ -81,6 +81,12 @@ function cmd.terminal:edit(file)
     return self:spawn(config.editor .. file)
 end
 
+local layouts = {
+    lain.layout.uselesstile,
+    lain.layout.uselesspiral,
+    awful.layout.suit.floating
+}
+
 -- #############
 -- # Wallpaper #
 -- #############
@@ -105,14 +111,18 @@ local screens = {}
 local tags = awful.tag(
     {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
     s,
-    config.layouts[1]
+    layouts[1]
 )
 
 -- Give each screen a tag table.
 for s = 1, screen.count() do
     screens[s] = {}
     -- Generate the screen's tag table
-    screens[s].tags = tags
+    screens[s].tags = awful.tag(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+        s,
+        layouts[1]
+    )
 
 end
 
@@ -244,19 +254,18 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
 
-    local temp_widget = wibox.widget.textbox()
-    local temp_file = io.popen("temperature")
-    temp_widget:set_text(temp_file:read("*n"))
-    temp_file:close()
-    local update_timer = timer({timeout = 5})
-    update_timer:connect_signal("timeout", function()
-        local temp_file = io.popen("temperature")
-        temp_widget:set_text(temp_file:read("*n"))
-        temp_file:close()
-    end)
-    update_timer:start()
     right_layout:add(widget.spacer(5))
-    right_layout:add(temp_widget)
+    local wid = wibox.widget.textbox()
+    local update = function()
+        local file = io.open("/tmp/temperature")
+        wid:set_text(file:read("*n"))
+        file:close()
+    end
+    update()
+    local timer = timer({timeout = 15})
+    timer:connect_signal("timeout", update)
+    timer:start()
+    right_layout:add(wid)
 
     right_layout:add(widget.spacer(5))
     right_layout:add(widget.link(16, 8))
@@ -266,9 +275,6 @@ for s = 1, screen.count() do
 
     right_layout:add(widget.spacer(5))
     right_layout:add(widget.alsa(16, 8))
-
-    right_layout:add(widget.spacer(5))
-    right_layout:add(widget.cpu(20, 8))
 
     right_layout:add(widget.spacer(5))
 
@@ -338,13 +344,6 @@ keys.global = awful.util.table.join(
     awful.key({}, "XF86Display",
         function()
             awful.util.spawn("set-display")
-            local file
-            file = io.open("/tmp/display_mode")
-            local percent = file:read("*l")
-            file:close()
-            naughty.notify({preset = naughty.config.presets.low,
-                            title = "External Display",
-                            text = percent})
         end
     ),
 
@@ -495,14 +494,14 @@ keys.global = awful.util.table.join(
     ),
 
     -- Mod + Shift + ; = Decrement the number of columns.
-    awful.key({config.keys.master, config.keys.move}, ";",
+    awful.key({config.keys.master, "Shift"}, ";",
         function()
             awful.tag.incncol(-1)
         end
     ),
 
     -- Mod + Shift + ' = Increment the number of columns.
-    awful.key({config.keys.master, config.keys.move}, "'",
+    awful.key({config.keys.master, "Shift"}, "'",
         function()
             awful.tag.incncol(1)
         end
@@ -511,26 +510,23 @@ keys.global = awful.util.table.join(
     -- Mod + Space = Switch to next layout.
     awful.key({config.keys.master}, "space",
         function()
-            awful.layout.inc(config.layouts, 1)
+            awful.layout.inc(layouts, 1)
         end
     ),
 
     -- Mod + Shift + Space = Switch to previous layout.
-    awful.key({config.keys.master, config.keys.move}, "space",
+    awful.key({config.keys.master, config.keys.launch}, "space",
         function()
-            awful.layout.inc(config.layouts, -1)
+            awful.layout.inc(layouts, -1)
         end
     ),
-
-    -- Mod + Ctrl + N = Un-minimize.
-    awful.key({config.keys.master, config.keys.close}, "n", awful.client.restore),
 
     -- Mod + c = Command prompt.
-    awful.key({config.keys.master}, "c",
-        function()
-            panels[mouse.screen].prompt:run()
-        end
-    ),
+    --awful.key({config.keys.master}, "c",
+    --    function()
+    --        panels[mouse.screen].prompt:run()
+    --    end
+    --),
 
     -- Mod + X = Run prompt for lua code.
     awful.key({config.keys.master, config.keys.move}, "x",
@@ -543,7 +539,7 @@ keys.global = awful.util.table.join(
     ),
 
     -- Mod + Shift + C = Launch application from menubar.
-    awful.key({config.keys.master, config.keys.move}, "c",
+    awful.key({config.keys.master}, "c",
         function()
             menubar.show()
         end
@@ -569,9 +565,11 @@ end
 keys.global = awful.util.table.join(
     keys.global,
     viml:keys{
-        commands  = config.keys.commands,
-        master    = config.keys.master,
-        movements = config.keys.movements,
+        commands   = config.keys.commands,
+        current    = config.keys.current,
+        master     = config.keys.master,
+        movements  = config.keys.movements,
+        operations = config.keys.operations,
     }
 )
 
@@ -623,6 +621,9 @@ awful.rules.rules = {-- All clients will match this rule.
                      properties = {floating = true}},
                     {rule = {class = "URxvt"},
                      properties = {size_hints_honor = false}},
+                    {rule = {class = "Conky"},
+                     properties = {border_width = 0,
+                                   sticky=true}},
                     {rule = {class = "pinentry"},
                      properties = {floating = true}}}
                      -- Set Firefox to always map on tags number 2 of screen 1.

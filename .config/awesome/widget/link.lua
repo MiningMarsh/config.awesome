@@ -18,7 +18,7 @@ function new(width, height, interface)
     end
 
     -- Create the widget.
-    local link_monitor = make_widget(width, height, 1)
+    local link_monitor = make_widget(width, height, 5)
 
     -- Initialize the charge state.
     local quality = link:quality()

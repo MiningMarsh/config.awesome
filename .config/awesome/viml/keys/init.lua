@@ -15,7 +15,7 @@ return function(self, args)
     local bindings
 
     for movement, movementkey in pairs(parse(args.movements)) do
-        for command, commandkey in pairs(parse(args.commands)) do
+        for command, commandkey in pairs(parse(args.operations)) do
             if commandkey ~= "None" then
                 bindings = awful.util.table.join(
                     bindings,
@@ -42,6 +42,24 @@ return function(self, args)
                 )
             end
         end
+    end
+
+    for key, command in pairs(args.current) do
+        bindings = awful.util.table.join(
+            bindings,
+            awful.key({args.master}, key,
+                function()
+                    command(self.current)
+                end
+            )
+        )
+    end
+
+    for key, command in pairs(args.commands) do
+        bindings = awful.util.table.join(
+            bindings,
+            awful.key({args.master}, key, command)
+        )
     end
 
     return bindings

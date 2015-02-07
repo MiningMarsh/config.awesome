@@ -39,11 +39,22 @@ return {
     keys = {
         master = "Mod4",
 
+        operations = {
+            viml.operation.focus, "None",
+            viml.operation.kill,  "Ctrl",
+            viml.operation.swap,  "Shift",
+            viml.operation.move,  "Mod1",
+        },
+
+        current = {
+            c = viml.current.close,
+            f = viml.current.fullscreen,
+            m = viml.current.maximize,
+            n = viml.current.minimize,
+        },
+
         commands = {
-            viml.command.focus, "None",
-            viml.command.kill,  "Ctrl",
-            viml.command.swap,  "Shift",
-            viml.command.move,  "Mod1",
+            v = viml.command.restore,
         },
 
         movements = {

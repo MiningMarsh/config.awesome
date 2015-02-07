@@ -4,8 +4,16 @@ return function(args)
     if args.client then
         local cl = args.current.client
 
-        while awful.client.next(1, args.client) ~= cl do
-            awful.client.swap.byidx(1, cl)
+        if not cl then
+            return
+        end
+
+        if awful.client.next(1, args.client) == cl then
+            args.client:swap(cl)
+        else
+            while awful.client.next(1, args.client) ~= cl do
+                awful.client.swap.byidx(1, cl)
+            end
         end
 
         client.focus = cl
