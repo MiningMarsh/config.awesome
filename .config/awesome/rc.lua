@@ -15,11 +15,11 @@ local viml      = require("viml")
 local wibox     = require("wibox")
 local widget    = require("widget")
 
--- ##############################
--- # Restart if not custom path #
--- ##############################
+-- ########################
+-- # Add all custom paths #
+-- ########################
 
-if io.popen("echo $PATH | grep /home/joshua/.bin"):read("*all") == "" then
+if io.popen("echo $PATH | grep /home/miningmarsh/.bin"):read("*all") == "" then
     awesome.restart()
 end
 
@@ -55,7 +55,7 @@ end
 -- #########
 
 -- Load our theme file.
-beautiful.init(".config/awesome/theme.lua")
+beautiful.init("~/.config/awesome/theme.lua")
 
 -- #############
 -- # Variables #
@@ -81,11 +81,7 @@ function cmd.terminal:edit(file)
     return self:spawn(config.editor .. file)
 end
 
-local layouts = {
-    lain.layout.uselesstile,
-    lain.layout.uselesspiral,
-    awful.layout.suit.floating
-}
+local layouts = config.layouts
 
 -- #############
 -- # Wallpaper #
@@ -106,13 +102,6 @@ end
 
 -- The table of screen.
 local screens = {}
-
--- The table of tags.
-local tags = awful.tag(
-    {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-    s,
-    layouts[1]
-)
 
 -- Give each screen a tag table.
 for s = 1, screen.count() do
@@ -253,13 +242,16 @@ for s = 1, screen.count() do
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
-
     right_layout:add(widget.spacer(5))
     local wid = wibox.widget.textbox()
     local update = function()
         local file = io.open("/tmp/temperature")
-        wid:set_text(file:read("*n"))
-        file:close()
+        if file  == nil then
+            wid:set_text("ERR")
+        else
+            wid:set_text(file:read("*n"))
+            file:close()
+        end
     end
     update()
     local timer = timer({timeout = 15})
@@ -267,16 +259,12 @@ for s = 1, screen.count() do
     timer:start()
     right_layout:add(wid)
 
+    for _, wid in pairs(config.widgets) do
+        right_layout:add(widget.spacer(5));
+        right_layout:add(wid)
+    end
     right_layout:add(widget.spacer(5))
-    right_layout:add(widget.link(16, 8))
 
-    right_layout:add(widget.spacer(5))
-    right_layout:add(widget.battery(16, 8))
-
-    right_layout:add(widget.spacer(5))
-    right_layout:add(widget.alsa(16, 8))
-
-    right_layout:add(widget.spacer(5))
 
     if s == 1 then
         right_layout:add(wibox.widget.systray())
@@ -310,9 +298,38 @@ root.buttons(
 
 -- Holds key bindings.
 local keys = {}
+keys.global = {}
+
+-- Bind program shortcuts.
+for key, program in pairs(config.keys.programs) do
+    -- Mod + Alt + <key> = Launch <program>.
+    keys.global = awful.util.table.join(
+        keys.global,
+        awful.key({config.keys.master, config.keys.launch}, key,
+            function()
+                naughty.notify({preset = naughty.config.presets.low,
+                                title = "Launching Program",
+                                text = program.name})
+                awful.util.spawn(program.command)
+            end
+        )
+    )
+end
+
+keys.global = awful.util.table.join(
+    keys.global,
+    viml:keys{
+        commands   = config.keys.commands,
+        current    = config.keys.current,
+        master     = config.keys.master,
+        movements  = config.keys.movements,
+        operations = config.keys.operations,
+    }
+)
 
 -- Global key bindings.
 keys.global = awful.util.table.join(
+    keys.global,
 
     -- Toggle Touchpad = toggle touchpad.
     awful.key({}, "XF86TouchpadToggle",
@@ -465,6 +482,20 @@ keys.global = awful.util.table.join(
     -- Mod + Shift + Q = Quit awesome.
     awful.key({config.keys.master}, "z", awesome.quit),
 
+    -- Mod + Launch + J = Increment window factor.
+    awful.key({config.keys.master, config.keys.launch}, "j",
+        function()
+            awful.client.incwfact(0.05)
+        end
+    ),
+
+    -- Mod + Launch + K = Decrement window factor.
+    awful.key({config.keys.master, config.keys.launch}, "k",
+        function()
+            awful.client.incwfact(-0.05)
+        end
+    ),
+
     -- Mod + Launch + L = Increment master window factor.
     awful.key({config.keys.master, config.keys.launch}, "l",
         function()
@@ -479,29 +510,29 @@ keys.global = awful.util.table.join(
         end
     ),
 
-    -- Mod + ; = Decrement the number of master windows.
-    awful.key({config.keys.master}, ";",
+    -- Mod + Launch + Shift + K = Decrement the number of master windows.
+    awful.key({config.keys.master, config.keys.launch, "Shift"}, "k",
         function()
             awful.tag.incnmaster(-1)
         end
     ),
 
-    -- Mod + Shift + ' = Increment the number of master windows.
-    awful.key({config.keys.master}, "'",
+    -- Mod + Launch + Shift + J = Increment the number of master windows.
+    awful.key({config.keys.master, config.keys.launch, "Shift"}, "j",
         function()
             awful.tag.incnmaster(1)
         end
     ),
 
-    -- Mod + Shift + ; = Decrement the number of columns.
-    awful.key({config.keys.master, "Shift"}, ";",
+    -- Mod + Alt + Shift + H = Decrement the number of columns.
+    awful.key({config.keys.master, config.keys.launch, "Shift"}, "h",
         function()
             awful.tag.incncol(-1)
         end
     ),
 
-    -- Mod + Shift + ' = Increment the number of columns.
-    awful.key({config.keys.master, "Shift"}, "'",
+    -- Mod + Launch + Shift + L = Increment the number of columns.
+    awful.key({config.keys.master, config.keys.launch, "Shift"},"l",
         function()
             awful.tag.incncol(1)
         end
@@ -522,11 +553,11 @@ keys.global = awful.util.table.join(
     ),
 
     -- Mod + c = Command prompt.
-    --awful.key({config.keys.master}, "c",
-    --    function()
-    --        panels[mouse.screen].prompt:run()
-    --    end
-    --),
+    awful.key({config.keys.master}, "c",
+        function()
+            panels[mouse.screen].prompt:run()
+        end
+    ),
 
     -- Mod + X = Run prompt for lua code.
     awful.key({config.keys.master, config.keys.move}, "x",
@@ -536,41 +567,7 @@ keys.global = awful.util.table.join(
             awful.util.eval, nil,
             awful.util.getdir("cache") .. "/history_eval")
         end
-    ),
-
-    -- Mod + Shift + C = Launch application from menubar.
-    awful.key({config.keys.master}, "c",
-        function()
-            menubar.show()
-        end
     )
-)
-
--- Bind program shortcuts.
-for key, program in pairs(config.keys.programs) do
-    -- Mod + Alt + <key> = Launch <program>.
-    keys.global = awful.util.table.join(
-        keys.global,
-        awful.key({config.keys.master, config.keys.launch}, key,
-            function()
-                naughty.notify({preset = naughty.config.presets.low,
-                                title = "Launching Program",
-                                text = program.name})
-                awful.util.spawn(program.command)
-            end
-        )
-    )
-end
-
-keys.global = awful.util.table.join(
-    keys.global,
-    viml:keys{
-        commands   = config.keys.commands,
-        current    = config.keys.current,
-        master     = config.keys.master,
-        movements  = config.keys.movements,
-        operations = config.keys.operations,
-    }
 )
 
 -- Set keys
@@ -616,7 +613,7 @@ awful.rules.rules = {-- All clients will match this rule.
                                     raise = true,
                                     keys = keys.client,
                                     buttons = buttons.client,
-                                    size_hints_honor = false}},
+                                    size_hints_honor = true}},
                     {rule = {class = "Plugin-container"},
                      properties = {floating = true}},
                     {rule = {class = "URxvt"},
@@ -677,7 +674,9 @@ client.connect_signal("unfocus",
 -- # Startup commands #
 -- ####################
 
-for _, v in pairs(config.startup) do
-    awful.util.spawn_with_shell(v)
+if config.startup then
+    for _, v in pairs(config.startup) do
+        awful.util.spawn_with_shell(v)
+    end
 end
 

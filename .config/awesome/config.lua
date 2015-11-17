@@ -25,15 +25,23 @@ return {
         "compton -b",
         "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
         "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
-        "amixer -c 1 sset Speaker,0 64",
-        "pidof aria2c || aria2c --conf-path=/home/joshua/.aria2/daemon.conf",
-        "pidof rtorrent || rtorrent-create",
-        "pidof mpd || mpd"
+        "synclient TapButton1=1 TapButton2=3 TapButton3=2",
+        "pidof owncloudcmd || owncloud-daemon &",
+        --"pidof aria2c || aria2c --conf-path=/home/joshua/.aria2/daemon.conf",
+        --"pidof rtorrent || rtorrent-create",
     },
 
     theme = {
         wallpaper = "~/.config/awesome/background",
         font      = "Kremlin 8"
+    },
+
+    widgets = {
+        widget.link(16, 8),
+        widget.alsa(16, 8),
+        widget.battery(16, 8),
+        widget.cpu(20, 8),
+        widget.mem(20, 8),
     },
 
     keys = {
@@ -103,7 +111,7 @@ return {
                 command = "urxvt -e vifm"
             },
 
-            l = {
+            w = {
                 name = "Writer",
                 command = "libreoffice"
             },

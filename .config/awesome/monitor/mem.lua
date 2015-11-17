@@ -18,8 +18,8 @@ local function new()
         free = free + assert(file:read("*number"))
         assert(file:read("*line"))
 
---        assert(file:read(7))
---        free = free + assert(file:read("*number"))
+        assert(file:read(7))
+        free = free + assert(file:read("*number"))
 
         file:close()
 

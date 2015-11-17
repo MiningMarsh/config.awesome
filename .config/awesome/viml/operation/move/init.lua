@@ -2,7 +2,8 @@ local awful = require("awful")
 
 return function(args)
     if args.client then
-        local cl = args.current.client
+        -- This is currently bugged, so we disable this for now.
+        --[[ local cl = args.current.client
 
         if not cl then
             return
@@ -17,7 +18,7 @@ return function(args)
         end
 
         client.focus = cl
-        client.focus:raise()
+        client.focus:raise()]]--
     elseif args.tag then
         if not args.current.client then
             return

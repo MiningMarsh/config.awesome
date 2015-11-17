@@ -4,15 +4,15 @@ local make_widget = require("widget.make_widget")
 
 function new(width, height)
 
-    widget_width = widget_width or 20
-    widget_height = widget_height or nil
+    widget_width = width or 20
+    widget_height = height or nil
 
     local mem = mem_factory()
 
-    local graph = graph_factory(width + 10)
+    local graph = graph_factory(widget_width + 10)
 
     -- Create the widget.
-    local mem_monitor = make_widget(width, height, 0.5)
+    local mem_monitor = make_widget(widget_width, widget_height, 0.5)
 
     -- Draws the widget.
     function mem_monitor:draw(wibox, cr, width, height)
