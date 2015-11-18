@@ -18,7 +18,7 @@ function new(width, height, interface)
     end
 
     -- Create the widget.
-    local link_monitor = make_widget(width, height, 5)
+    local link_monitor = make_widget(width, height, 1)
 
     -- Initialize the charge state.
     local quality = link:quality()
@@ -39,6 +39,10 @@ function new(width, height, interface)
         triangle:add_point(e - 0.5, h)
         triangle:draw()
         cr:fill()
+    end
+
+    function link_monitor:drawable()
+        return link:on_wireless() or link:on_ethernet()
     end
 
     function link_monitor:update()

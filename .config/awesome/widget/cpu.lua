@@ -41,6 +41,16 @@ function new(width, height)
         graph:push(cpu:usage())
     end
 
+    function cpu_monitor:drawable()
+        for i = 1, width do
+            if graph:peek(i) > 0.25 then
+                return true
+            end
+        end
+
+        return false
+    end
+
     return cpu_monitor
 end
 

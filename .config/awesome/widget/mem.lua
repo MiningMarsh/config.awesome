@@ -42,6 +42,16 @@ function new(width, height)
         graph:push(mem:usage())
     end
 
+    function mem_monitor:drawable()
+        for i = 1, width do
+            if graph:peek(i) > 0.1 then
+                return true
+            end
+        end
+
+        return false
+    end
+
     return mem_monitor
 end
 

@@ -3,7 +3,12 @@ cairo = cairo.cairo
 local base = require("wibox.widget.base")
 local color = require("gears.color")
 
-local function new(width, height, interval)
+local function new(width, height, interval, seperator_width)
+
+    -- Default seperator size.
+    if not seperator_wdith then
+        seperator_width = 5
+    end
 
     -- Create the base widget that does custom drawing handling.
     local metatable = setmetatable({}, {__index = base.make_widget()})
@@ -31,18 +36,33 @@ local function new(width, height, interval)
     end
 
     function metatable:fit(awidth, aheight)
+        -- If the widget declares it cannot be drawn, we return 0 width.
+        local drawable = rawget(widget, "drawable")
+        if drawable then
+            if not drawable() then
+                return 0, aheight
+            end
+        end
+
         local raw = rawget(widget, "fit")
         if raw then
-            return raw(widget_interface, awidth, aheight)
+            -- Otherwise, we append the seperator width.
+            local rawwidth, rawheight = raw(widget_interface, awidth, aheight)
+            return rawwidth + seperator_width, rawheight
         else
             local retwidth, retheight
             retwidth = width and width or awidth
             retheight = height and height or aheight
-            return width, height
+            return width + seperator_width, height
         end
     end
 
     function metatable:draw(wibox, cr, awidth, aheight)
+
+        -- If we were given no actual drawble region, assume we can't be drawn.
+        if awidth <= 0 then
+            return
+        end
 
         -- Find out how much padding to give the widget.
         local padding = 0
@@ -56,7 +76,6 @@ local function new(width, height, interval)
         end
 
         -- The context to pass to the widget.
-        -- local newcr = cairo.Context.create()
         local surface = cairo.ImageSurface.create('ARGB32', width, passed_height)
         local newcr = cairo.Context.create(surface)
 
@@ -69,7 +88,7 @@ local function new(width, height, interval)
         fn(widget_interface, wibox, newcr, width, passed_height)
 
         -- Paint the new context onto the actual context.
-        cr:set_source_surface(surface, 0, padding)
+        cr:set_source_surface(surface, seperator_width, padding)
         cr:paint()
     end
 

@@ -4,15 +4,37 @@ function new(name)
     -- The link object we are returning.
     local link = {}
 
+    local checklink = function(interface)
+        local state = io.open("/sys/class/net/" .. interface .. "/operstate")
+        if state and state:read("*l") == "up" then
+        	state = io.open("/sys/class/net/" .. interface .. "/carrier")
+        	if state and state:read("*n") == 1 then
+                state:close()
+        		return true
+        	end
+        end
+
+        if state then
+            state:close()
+        end
+
+        return false
+    end
+
+    -- Returns whether we are on ethernet
+    function link:on_ethernet()
+        return checklink("enp4s0")
+    end
+
+    -- Returns whether we are on a wireless connection.
+    function link:on_wireless()
+        return checklink("wlp5s0")
+    end
+
     -- Return quality of this link.
     function link:quality()
-        local ethernet = io.open("/sys/class/net/eth0/operstate")
-        if ethernet and ethernet:read("*l") == "up" then
-        	ethernet:close()
-        	ethernet = io.open("/sys/class/net/eth0/carrier")
-        	if ethernet and ethernet:read("*n") == 1 then
-        		return 100
-        	end
+        if link:on_ethernet() then
+            return 100
         end
 
         local file = assert(io.open("/proc/net/wireless"))

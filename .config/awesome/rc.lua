@@ -260,7 +260,6 @@ for s = 1, screen.count() do
     right_layout:add(wid)
 
     for _, wid in pairs(config.widgets) do
-        right_layout:add(widget.spacer(5));
         right_layout:add(wid)
     end
     right_layout:add(widget.spacer(5))
