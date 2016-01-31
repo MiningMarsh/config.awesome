@@ -42,7 +42,7 @@ function new(width, height, interface)
     end
 
     function link_monitor:drawable()
-        return link:on_wireless() or link:on_ethernet()
+        return link:on_wireless() and not link:on_ethernet()
     end
 
     function link_monitor:update()

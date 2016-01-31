@@ -44,7 +44,7 @@ function new(width, height)
 
     function mem_monitor:drawable()
         for i = 1, width do
-            if graph:peek(i) > 0.1 then
+            if graph:peek(i) > 0.25 then
                 return true
             end
         end

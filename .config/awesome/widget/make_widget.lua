@@ -5,10 +5,7 @@ local color = require("gears.color")
 
 local function new(width, height, interval, seperator_width)
 
-    -- Default seperator size.
-    if not seperator_wdith then
-        seperator_width = 5
-    end
+    seperator_width = seperator_width and seperator_width or 5
 
     -- Create the base widget that does custom drawing handling.
     local metatable = setmetatable({}, {__index = base.make_widget()})
@@ -85,7 +82,9 @@ local function new(width, height, interval, seperator_width)
 
         -- Have the widget draw to the new context.
         local fn = rawget(widget, "draw")
-        fn(widget_interface, wibox, newcr, width, passed_height)
+	if fn then
+	   fn(widget_interface, wibox, newcr, width, passed_height)
+	end
 
         -- Paint the new context onto the actual context.
         cr:set_source_surface(surface, seperator_width, padding)

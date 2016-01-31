@@ -17,23 +17,34 @@ return {
         awful.layout.suit.floating
     },
 
-    terminal = "urxvt",
-    editor = "vim",
+    terminal = "urxvtc",
+    editor = "emacsclient",
 
     startup = {
-        "xsetroot -cursor_name left_ptr",
-        "compton -b",
-        "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
-        "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
-        "synclient TapButton1=1 TapButton2=3 TapButton3=2",
+	"dispatch-confd &",
+	"newsd &",
+	"pidof redshift || redshift &",
+	"pidof udevil || devmon --sync --no-gui &",
+	"skyped &",
+        "emacsd",
+        "ercd",
+        "gpud &",
+        "pidof mpd || mpd && mpc pause",
+        "pidof nuntius || nuntiusd &",
         "pidof owncloudcmd || owncloud-daemon &",
-        --"pidof aria2c || aria2c --conf-path=/home/joshua/.aria2/daemon.conf",
-        --"pidof rtorrent || rtorrent-create",
+        "pidof urxvtd || urxvtd -f",
+        "synclient TapButton1=1 TapButton2=3 TapButton3=2",
+        "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
+        "xrandr --auto",
+        "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
+        "xrandr --setprovideroutputsource modesetting NVIDIA-0",
+        "xset s off -dpms",
+        "xsetroot -cursor_name left_ptr",
     },
 
     theme = {
         wallpaper = "~/.config/awesome/background",
-        font      = "Kremlin 8"
+        --font      = "Kremlin 8"
     },
 
     widgets = {
@@ -72,7 +83,6 @@ return {
             viml.movement.client.direction("right"), "l",
             viml.movement.client.direction("up"),    "k",
             viml.movement.client.id(1),              "q",
-            viml.movement.client.id(10),             "p",
             viml.movement.client.id(2),              "w",
             viml.movement.client.id(3),              "e",
             viml.movement.client.id(4),              "r",
@@ -81,11 +91,11 @@ return {
             viml.movement.client.id(7),              "u",
             viml.movement.client.id(8),              "i",
             viml.movement.client.id(9),              "o",
+            viml.movement.client.id(10),             "p",
             viml.movement.client.next,               "]",
             viml.movement.client.previous,           "[",
             viml.movement.tag.current,               "BackSpace",
             viml.movement.tag.id(1),                 1,
-            viml.movement.tag.id(10),                10,
             viml.movement.tag.id(2),                 2,
             viml.movement.tag.id(3),                 3,
             viml.movement.tag.id(4),                 4,
@@ -94,6 +104,7 @@ return {
             viml.movement.tag.id(7),                 7,
             viml.movement.tag.id(8),                 8,
             viml.movement.tag.id(9),                 9,
+            viml.movement.tag.id(10),                10,
             viml.movement.tag.next,                  "=",
             viml.movement.tag.previous,              "-",
         },
@@ -108,7 +119,7 @@ return {
 
             f = {
                 name = "File Manager",
-                command = "urxvt -e vifm"
+                command = "urxvtc -e vifm"
             },
 
             w = {
@@ -118,7 +129,7 @@ return {
 
             m = {
                 name = "Music Player",
-                command = "urxvt -e ncmpcpp"
+                command = "urxvtc -e ncmpcpp"
             },
 
             v = {
@@ -128,7 +139,17 @@ return {
 
             d = {
                 name = "Text Editor",
-                command = "urxvt -e vim"
+                command = "emacs"
+            },
+
+            c = {
+                name = "IRC",
+                command = "erc"
+            },
+
+            t = {
+                name = "Tiny Fugue",
+                command = "urxvtc -e tf"
             }
         }
     }

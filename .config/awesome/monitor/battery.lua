@@ -22,6 +22,42 @@ local function new(battery_path)
         end
     end
 
+    function battery:string_property(property)
+        property = io.open(
+                       path.base .. (path[property] or property),
+                       "r"
+                   )
+        if property then
+            local prop = property:read("*l")
+            property:close()
+            return prop
+        else
+            return nil
+        end
+    end
+
+    function battery:on_ac()
+        if not battery:exists() then
+            return true
+        end
+
+        local status = battery:string_property("status")
+        if not status then
+            return true
+        end
+
+        if status == "Discharging" then
+            return false
+        end
+
+        return true
+    end
+
+    function battery:exists()
+        local full = battery:property("full")
+        return full ~= nil
+    end
+
     function battery:charge()
         local full = battery:property("full")
         if full then

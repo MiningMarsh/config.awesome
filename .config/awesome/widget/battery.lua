@@ -18,7 +18,7 @@ function new(width, height, battery_path)
     end
 
     -- Create the widget.
-    local battery_monitor = make_widget(width, height, 60)
+    local battery_monitor = make_widget(width, height, 2)
 
     -- Initialize the charge state.
     local charge = battery:charge()
@@ -43,6 +43,10 @@ function new(width, height, battery_path)
 
     function battery_monitor:update()
         charge = battery:charge()
+    end
+
+    function battery_monitor:drawable()
+        return not battery:on_ac()
     end
 
     return battery_monitor

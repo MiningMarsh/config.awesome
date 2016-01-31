@@ -230,7 +230,6 @@ for s = 1, screen.count() do
     -- Create a promptbox.
     panels[s].prompt = awful.widget.prompt()
     -- Create a tasklist widget
-    --
     panels[s].taskbar = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, panels.taskbar.buttons)
 
     -- Create the wibox
@@ -242,29 +241,12 @@ for s = 1, screen.count() do
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
-    right_layout:add(widget.spacer(5))
-    local wid = wibox.widget.textbox()
-    local update = function()
-        local file = io.open("/tmp/temperature")
-        if file  == nil then
-            wid:set_text("ERR")
-        else
-            wid:set_text(file:read("*n"))
-            file:close()
-        end
-    end
-    update()
-    local timer = timer({timeout = 15})
-    timer:connect_signal("timeout", update)
-    timer:start()
-    right_layout:add(wid)
 
+    -- Add every widget from the configuration to the layout.
     for _, wid in pairs(config.widgets) do
         right_layout:add(wid)
     end
-    right_layout:add(widget.spacer(5))
-
-
+    right_layout:add(widget.spacer(4))
     if s == 1 then
         right_layout:add(wibox.widget.systray())
     end
@@ -343,11 +325,18 @@ keys.global = awful.util.table.join(
         end
     ),
 
+    -- Sleep = suspend.
+    awful.key({}, "XF86Sleep",
+        function()
+            awful.util.spawn_with_shell("sudo suspension")
+        end
+    ),
+
     -- Toggle Eco Mode = Toggle wireless.
     awful.key({}, "plusminus",
         function()
             local file
-            file = io.popen("toggle-wireless")
+            file = io.popen("sudo /usr/local/sbin/toggle-wireless")
             local status = file:read("*l")
             file:close()
             naughty.notify({preset = naughty.config.presets.low,
@@ -644,7 +633,7 @@ client.connect_signal("manage", function(c, startup)
     if not startup then
         -- Set the config.windows at the slave,
         -- i.e. put it at the end of others instead of setting it master.
-        -- awful.client.setslave(c)
+        awful.client.setslave(c)
 
         -- Put config.windows in a smart way, only if they does not set an initial position.
         if not c.size_hints.user_position and not c.size_hints.program_position then
