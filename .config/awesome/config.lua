@@ -18,28 +18,26 @@ return {
     },
 
     terminal = "urxvtc",
-    editor = "emacsclient",
+    editor = "emacsclient -c",
 
     startup = {
-	"dispatch-confd &",
-	"newsd &",
-	"pidof redshift || redshift &",
-	"pidof udevil || devmon --sync --no-gui &",
-	"skyped &",
+        "dispatch-confd &",
+        "newsd &",
+        "pidof redshift || redshift &",
+        "pidof udevil || devmon --sync --info-on-mount &",
         "emacsd",
-        "ercd",
         "gpud &",
         "pidof mpd || mpd && mpc pause",
-        "pidof nuntius || nuntiusd &",
-        "pidof owncloudcmd || owncloud-daemon &",
         "pidof urxvtd || urxvtd -f",
         "synclient TapButton1=1 TapButton2=3 TapButton3=2",
         "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
         "xrandr --auto",
         "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
-        "xrandr --setprovideroutputsource modesetting NVIDIA-0",
-        "xset s off -dpms",
+        --"xrandr --setprovideroutputsource modesetting NVIDIA-0",
+        "xset s on -dpms",
+        "xset s 600 600",
         "xsetroot -cursor_name left_ptr",
+	"pidof xautolock || xautolock -time 10 -locker xtrlock &",
     },
 
     theme = {
@@ -104,7 +102,7 @@ return {
             viml.movement.tag.id(7),                 7,
             viml.movement.tag.id(8),                 8,
             viml.movement.tag.id(9),                 9,
-            viml.movement.tag.id(10),                10,
+            viml.movement.tag.id(10),                0,
             viml.movement.tag.next,                  "=",
             viml.movement.tag.previous,              "-",
         },
@@ -137,9 +135,9 @@ return {
                 command = "vlc"
             },
 
-            d = {
+            e = {
                 name = "Text Editor",
-                command = "emacs"
+                command = "emacsclient -c"
             },
 
             c = {

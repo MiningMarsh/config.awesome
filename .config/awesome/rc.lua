@@ -477,6 +477,13 @@ keys.global = awful.util.table.join(
         end
     ),
 
+    -- Mod + End = Eject devices.
+    awful.key({config.keys.master}, "End",
+	      function()
+		 awful.util.spawn("devmon -r")
+	      end
+    ),
+
     -- Mod + Launch + K = Decrement window factor.
     awful.key({config.keys.master, config.keys.launch}, "k",
         function()

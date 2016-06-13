@@ -78,7 +78,7 @@ local function new(width, height, interval, seperator_width)
 
         -- Initialize the new cairo context's state.
         newcr:set_line_width(1)
-        newcr:set_source(color("#ffffff"))
+        newcr:set_source(color("#7e9e7e"))
 
         -- Have the widget draw to the new context.
         local fn = rawget(widget, "draw")
