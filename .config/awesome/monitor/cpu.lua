@@ -1,11 +1,21 @@
-local function new()
+local function new(cpuid)
     local cpu = {}
     local last = {}
     last.idle = 0
     last.working = 0
+    cpu.id = cpuid
 
     function cpu:usage()
         local stat = io.open("/proc/stat")
+
+	-- Skip cpus
+	for i=0, cpuid do
+
+	   -- First line is general cpu, each following is cpu1-cpuX
+	   stat:read("*line")
+	end
+
+
         -- Skip header
         stat:read(5)
 

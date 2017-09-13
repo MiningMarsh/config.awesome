@@ -2,26 +2,19 @@
 -- # Libraries #
 -- #############
 
-local awful     = require("awful")
-awful.autofocus = require("awful.autofocus")
-awful.rules     = require("awful.rules")
-local beautiful = require("beautiful")
-local config    = require("config")
-local gears     = require("gears")
-local lain      = require("lain")
-local menubar   = require("menubar")
-local naughty   = require("naughty")
-local viml      = require("viml")
-local wibox     = require("wibox")
-local widget    = require("widget")
-
--- ########################
--- # Add all custom paths #
--- ########################
-
-if io.popen("echo $PATH | grep /home/miningmarsh/.bin"):read("*all") == "" then
-    awesome.restart()
-end
+local awful           = require("awful")
+      awful.autofocus = require("awful.autofocus")
+      awful.rules     = require("awful.rules")
+local beautiful       = require("beautiful")
+local config          = require("config")
+local gears           = require("gears")
+local lain            = require("lain")
+local menubar         = require("menubar")
+local naughty         = require("naughty")
+local viml            = require("viml")
+local wibox           = require("wibox")
+local widget          = require("widget")
+local actions         = require("actions")
 
 -- ##################
 -- # Error Handling #
@@ -44,6 +37,10 @@ do
             text   = err,
             title  = "Oops, an error happened!",
         }
+
+        file = io.open("/home/miningmarsh/.awesome-debug", "a+")
+        file:write(err .. "\n")
+        file:close()
 
         -- We just finished handling the error.
         in_error = false
@@ -247,6 +244,8 @@ for s = 1, screen.count() do
         right_layout:add(wid)
     end
     right_layout:add(widget.spacer(4))
+
+    -- Only place a system tray on the first desktop
     if s == 1 then
         right_layout:add(wibox.widget.systray())
     end
@@ -263,7 +262,7 @@ end
 -- #########
 -- # Mouse #
 -- #########
-
+--
 root.buttons(
     awful.util.table.join(
         awful.button({}, 3, function()
@@ -326,9 +325,15 @@ keys.global = awful.util.table.join(
     ),
 
     -- Sleep = suspend.
-    awful.key({}, "XF86Sleep",
+    --[[awful.key({}, "XF86Sleep",
         function()
             awful.util.spawn_with_shell("sudo suspension")
+        end
+    ),]]--
+
+    awful.key({}, "Scroll_Lock",
+        function()
+            actions.screensaver:lock()
         end
     ),
 
@@ -355,16 +360,16 @@ keys.global = awful.util.table.join(
     -- Volume Up = Volume up.
     awful.key({}, "XF86AudioRaiseVolume",
         function()
-            awful.util.spawn("amixer set Master 5%+")
-            widget.alsa:update()
+           actions.volume:increase(0.05)
+           widget.alsa:update()
         end
     ),
 
     -- Volume Down = Volume down.
     awful.key({}, "XF86AudioLowerVolume",
         function()
-            awful.util.spawn("amixer set Master 5%-")
-            widget.alsa:update()
+           actions.volume:decrease(0.05)
+           widget.alsa:update()
         end
     ),
 
@@ -392,12 +397,12 @@ keys.global = awful.util.table.join(
     -- Print = Take screenshot.
     awful.key({}, "Print",
         function()
-            local file
-            file = io.popen("screenshot")
-            local percent = file:read("*l")
-            file:close()
+            local datecmd = io.popen("date")
+            local date = datecmd:read("*l")
+            datecmd:close()
+            awful.util.spawn_with_shell("scrot ~/Pictures/Screenshots/'" .. date .. "'.png")
             naughty.notify({preset = naughty.config.presets.low,
-                            title = "Screenshot",
+                            title = "Screenshot: " .. date,
                             text = percent})
         end
     ),
@@ -426,34 +431,22 @@ keys.global = awful.util.table.join(
     -- Volume Mute = Volume mute/unmute.
     awful.key({}, "XF86AudioMute",
         function()
+            actions.volume:toggle()
             widget.alsa:update()
-            awful.util.spawn("amixer sset Master toggle")
         end
     ),
 
     -- Birghtness Down = Decrease brightness.
     awful.key({}, "XF86MonBrightnessDown",
         function()
-            local file
-            file = io.popen("light decrease 25")
-            local percent = "Current: " .. file:read("*number") .. "%"
-            file:close()
-            naughty.notify({preset = naughty.config.presets.low,
-                            title = "Brightness",
-                            text = percent})
+            actions.brightness:decrease(0.1)
         end
     ),
 
     -- Birghtness Up = Increase brightness.
     awful.key({}, "XF86MonBrightnessUp",
         function()
-            local file
-            file = io.popen("light increase 25")
-            local percent = "Current: " .. file:read("*number") .. "%"
-            file:close()
-            naughty.notify({preset = naughty.config.presets.low,
-                            title = "Brightness",
-                            text = percent})
+            actions.brightness:increase(0.1)
         end
     ),
 
@@ -479,9 +472,16 @@ keys.global = awful.util.table.join(
 
     -- Mod + End = Eject devices.
     awful.key({config.keys.master}, "End",
-	      function()
-		 awful.util.spawn("devmon -r")
-	      end
+        function()
+            awful.util.spawn("devmon -c")
+        end
+    ),
+
+    -- Mod + Home = Turn off screen.
+    awful.key({config.keys.master}, "Home",
+        function()
+            awful.util.spawn("xset dpms force off")
+        end
     ),
 
     -- Mod + Launch + K = Decrement window factor.
@@ -550,17 +550,19 @@ keys.global = awful.util.table.join(
     -- Mod + c = Command prompt.
     awful.key({config.keys.master}, "c",
         function()
-            panels[mouse.screen].prompt:run()
+            panels[mouse.screen.index].prompt:run()
         end
     ),
 
     -- Mod + X = Run prompt for lua code.
     awful.key({config.keys.master, config.keys.move}, "x",
         function()
-            awful.prompt.run({prompt = "Run Lua code: "},
-            panels[mouse.screen].prompt.widget,
-            awful.util.eval, nil,
-            awful.util.getdir("cache") .. "/history_eval")
+	   awful.prompt.run(
+	      {prompt = "Run Lua code: "},
+	      panels[mouse.screen.index].prompt.widget,
+	      awful.util.eval, nil,
+	      awful.util.getdir("cache") .. "/history_eval"
+	   )
         end
     )
 )
@@ -607,15 +609,22 @@ awful.rules.rules = {-- All clients will match this rule.
                                     focus = awful.client.focus.filter,
                                     raise = true,
                                     keys = keys.client,
+                                    maximized_vertical = false,
+                                    maximized_horizontal = false,
                                     buttons = buttons.client,
-                                    size_hints_honor = true}},
+                                    size_hints_honor = false}},
                     {rule = {class = "Plugin-container"},
                      properties = {floating = true}},
                     {rule = {class = "URxvt"},
-                     properties = {size_hints_honor = false}},
+                     properties = {size_hints_honor = true}},
                     {rule = {class = "Conky"},
                      properties = {border_width = 0,
                                    sticky=true}},
+                    {rule = {class = "Plasma"},
+                     properties = {floating = true},
+                     --[[callback = function(c)
+                                    c:geometry({width = 600, height = 500})
+                                end--]]},
                     {rule = {class = "pinentry"},
                      properties = {floating = true}}}
                      -- Set Firefox to always map on tags number 2 of screen 1.
@@ -628,12 +637,18 @@ awful.rules.rules = {-- All clients will match this rule.
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function(c, startup)
 
+    -- Make all floating windows ontop windows.
+    if c.floating then
+        c.ontop = true
+    end
+
     -- Connect a signal to a client that gets executed on mouseover.
     c:connect_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
             and awful.client.focus.filter(c) then
             -- Focus the client.
             client.focus = c
+            c:raise()
         end
     end)
 
@@ -664,14 +679,3 @@ client.connect_signal("unfocus",
         c.border_color = beautiful.border_normal
     end
 )
-
--- ####################
--- # Startup commands #
--- ####################
-
-if config.startup then
-    for _, v in pairs(config.startup) do
-        awful.util.spawn_with_shell(v)
-    end
-end
-

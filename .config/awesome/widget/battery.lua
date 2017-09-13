@@ -22,9 +22,17 @@ function new(width, height, battery_path)
 
     -- Initialize the charge state.
     local charge = battery:charge()
+
     -- Draws the widget.
     function battery_monitor:draw(wibox, cr, width, height)
 
+        if charge <= 0.15 then
+            cr:set_source(color("#ff0000"))
+        end
+        cr:rectangle(0, 1, (width - 3.5) * charge + 1, height - 1.5)
+        cr:fill()
+
+        cr:set_source(color("#7e9e7e"))
         cr:move_to(0, height - 0.5)
         cr:line_to(width - 2.5, height - 0.5)
         cr:line_to(width - 2.5, 0.5)
@@ -35,10 +43,6 @@ function new(width, height, battery_path)
         cr:move_to(width - 1.5, 2)
         cr:line_to(width - 1.5, height - 2)
         cr:stroke()
-
-        cr:rectangle(0, 1, (width - 3.5) * charge + 1, height - 1.5)
-
-        cr:fill()
     end
 
     function battery_monitor:update()
@@ -46,7 +50,11 @@ function new(width, height, battery_path)
     end
 
     function battery_monitor:drawable()
-        return not battery:on_ac()
+        if not battery:on_ac() then
+            return true
+        end
+
+        return charge < 0.85
     end
 
     return battery_monitor

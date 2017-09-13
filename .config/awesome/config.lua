@@ -12,8 +12,9 @@ local widget    = require("widget")
 
 return {
     layouts = {
-        lain.layout.uselesstile,
-        lain.layout.uselesspiral,
+        awful.layout.suit.tile,
+        awful.layout.suit.spiral,
+        lain.layout.centerwork,
         awful.layout.suit.floating
     },
 
@@ -37,7 +38,7 @@ return {
         "xset s on -dpms",
         "xset s 600 600",
         "xsetroot -cursor_name left_ptr",
-	"pidof xautolock || xautolock -time 10 -locker xtrlock &",
+        "pidof xautolock || xautolock -time 10 -locker xtrlock &",
     },
 
     theme = {
@@ -49,7 +50,8 @@ return {
         widget.link(16, 8),
         widget.alsa(16, 8),
         widget.battery(16, 8),
-        widget.cpu(20, 8),
+        -- Note to self, old values were 20, 8
+        widget.cpu(20, 8, 0, 7),
         widget.mem(20, 8),
     },
 
@@ -64,7 +66,6 @@ return {
         },
 
         current = {
-            c = viml.current.close,
             f = viml.current.fullscreen,
             m = viml.current.maximize,
             n = viml.current.minimize,
@@ -117,7 +118,7 @@ return {
 
             f = {
                 name = "File Manager",
-                command = "urxvtc -e vifm"
+                command = "urxvtc -e ranger"
             },
 
             w = {

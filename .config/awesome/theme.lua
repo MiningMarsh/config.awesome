@@ -47,12 +47,18 @@ theme.bg_normal  = theme.colors.base3
 theme.bg_focus   = theme.colors.base1
 theme.bg_urgent  = theme.colors.red
 theme.bg_systray = theme.bg_normal
+
+-- Colors for top bar thing.
+theme.fg_normal = "#7e9e7e"
+theme.fg_focus, theme.bg_focus = theme.bg_normal, theme.fg_normal
+--theme.bg_normal = theme.colors.base3
+
 -- }}}
 
 -- {{{ Borders
-theme.border_width  = "2"
+theme.border_width  = "0" -- "2"
 theme.border_normal = theme.bg_normal
-theme.border_focus  = theme.bg_focus
+theme.border_focus  = theme.bg_normal
 theme.border_marked = theme.bg_urgent
 -- }}}
 
@@ -127,6 +133,7 @@ theme.titlebar_maximized_button_normal_inactive = theme.default_themes_path.."/z
 -- }}}
 -- }}}
 --
-theme.useless_gap_width = 15
+theme.useless_gap_width = 0
+theme.tasklist_disable_icon = true
 
 return theme

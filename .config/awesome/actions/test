@@ -1,0 +1,9 @@
+brightness = require("actions.brightness")
+naughty = require("naughty")
+brightness:decrease(0.5)
+brightness:increase(0.5)
+naughty.notify{
+	preset = naughty.config.presets.critical,
+	text   = "'" .. tostring(brightness:get()) .. "'",
+	title  = "Debug!",
+}
