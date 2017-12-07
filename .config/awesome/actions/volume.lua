@@ -53,50 +53,32 @@ local function setMutedCommand(value)
     return "pactl set-sink-mute " .. sink .. " " .. (value and "yes" or "no")
 end
 
-local function muted()
-    local muted = getMutedCommand()
-    if not muted then
+local function runCommand(command)
+    if not command then
         return nil
     end
 
-   local cmd = io.popen(muted)
-   local result = cmd:read()
-   cmd:close()
+    local cmd = io.popen(command)
+    local result = cmd:read()
+    cmd:close()
 
-   return result == "yes"
+    return result
+end
+
+local function muted()
+    return runCommand(getMutedCommand()) == "yes"
 end
 
 local function get()
-    local get = getVolumeCommand()
-    if not get then
-        return nil
-    end
-
-   local cmd = io.popen(get)
-   local result = cmd:read()
-   cmd:close()
-
-   return result
+    return runCommand(getVolumeCommand())
 end
 
 local function mute(new)
-    local set = setMutedCommand(new)
-    if not set then
-        return nil
-    end
-
-   local cmd = io.popen(set)
-   cmd:close()
+    runCommand(setMutedCommand(new))
 end
 
 local function set(new)
-    local set = setVolumeCommand(new)
-    if not set then
-        return nil
-    end
-
-   local cmd = io.popen(set)
-   cmd:close()
+    runCommand(setVolumeCommand(new))
 end
 
 local function sanitize(value)
