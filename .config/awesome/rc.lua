@@ -613,23 +613,39 @@ awful.rules.rules = {-- All clients will match this rule.
                                     maximized_horizontal = false,
                                     buttons = buttons.client,
                                     size_hints_honor = false}},
+
+		     -- Plugin containers must be floating to correctly follow
+		     -- the window.
                     {rule = {class = "Plugin-container"},
                      properties = {floating = true}},
+
+		    -- URxvt will place black in areas when we don't honor its
+		    -- hints.
                     {rule = {class = "URxvt"},
                      properties = {size_hints_honor = true}},
+
+		    -- Prevent conky from standing out.
                     {rule = {class = "Conky"},
                      properties = {border_width = 0,
                                    sticky=true}},
+
+		    -- VirtualBox likes to do weird things,
+		    {rule = {class = "VirtualBox"},
+		     properties = {maximized = false,
+				   sticky = false,
+				   floating = false,
+				   size_hints_honor = true}},
+
+		    -- TODO: Make this work so I can use the plasma bar.
                     {rule = {class = "Plasma"},
                      properties = {floating = true},
                      --[[callback = function(c)
                                     c:geometry({width = 600, height = 500})
                                 end--]]},
+
+		    -- Make pinentry work.
                     {rule = {class = "pinentry"},
                      properties = {floating = true}}}
-                     -- Set Firefox to always map on tags number 2 of screen 1.
-                     -- { rule = { class = "Firefox" },
-                     --   properties = { tag = tags[1][2] } }
 -- ###########
 -- # Signals #
 -- ###########

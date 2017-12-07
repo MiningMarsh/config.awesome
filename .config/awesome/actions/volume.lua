@@ -1,9 +1,11 @@
-local naughty = require("naughty")
+--local naughty = require("naughty")
 
 local volume = {}
 
-local function getControlDevice()
-   local cmd = io.popen("qdbus org.kde.kmix /Mixers org.kde.KMix.MixSet.currentMasterControl")
+local func
+
+local function getSink()
+   local cmd = io.popen("pactl info | grep 'Default Sink' | awk '{print $3}'")
 
    local control = cmd:read()
    cmd:close()
@@ -11,45 +13,46 @@ local function getControlDevice()
    return control
 end
 
-local function getControlCmd(value)
-   local control = getControlDevice()
-   if not control then
-       return nil
-   end
+local function getVolumeCommand()
+    local sink = getSink()
 
-   return "qdbus org.kde.kmix /Mixers/PulseAudio__Playback_Devices_1/" .. control:gsub("[.-]", "_")
-end
-
-local function getKMixCmd()
-    local cmd = getControlCmd()
-
-    if not cmd then
+    if not sink then
         return nil
     end
 
-    return getControlCmd() .. " org.kde.KMix.Control."
+    return "pactl list sinks | grep 'Name: " .. sink .. "' -a10 | grep Volume | egrep -oE '[0-9]+%' | egrep -oE '[0-9]+' | head -n1"
 end
 
-local function get(value)
-    local kmix = getKMixCmd()
-    if not kmix then
+local function setVolumeCommand(value)
+    local sink = getSink()
+
+    if not sink then
         return nil
     end
 
-   local cmd = io.popen(kmix .. tostring(value))
+    return "pactl set-sink-volume " .. sink .. " " .. tostring(value) .. "%"
+end
+
+local function get()
+    local get = getVolumeCommand()
+    if not get then
+        return nil
+    end
+
+   local cmd = io.popen(get)
    local result = cmd:read()
    cmd:close()
 
    return result
 end
 
-local function set(value, new)
-    local kmix = getKMixCmd()
-    if not kmix then
+local function set(new)
+    local set = setVolumeCommand(new)
+    if not set then
         return nil
     end
 
-   local cmd = io.popen(kmix .. tostring(value) .. " ".. tostring(new))
+   local cmd = io.popen(set)
    cmd:close()
 end
 
@@ -76,16 +79,11 @@ local function nil0(value)
 end
 
 function volume:get()
-   return sanitize(
-      nil0(get("absoluteVolume"))
-      / nil0(get("absoluteVolumeMax")))
+   return sanitize(get() / 100)
 end
 
 function volume:set(value)
-   set(
-      "absoluteVolume",
-      math.floor(sanitize(value) * nil0(get("absoluteVolumeMax")))
-   )
+   set(math.floor(sanitize(value) * 100))
 end
 
 function volume:increase(value)

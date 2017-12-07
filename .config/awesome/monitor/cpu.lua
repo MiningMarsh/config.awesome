@@ -42,7 +42,7 @@ local function new(cpuid)
     end
 
     function cpu:temperature()
-        local file = io.popen("temperature")
+        local file = io.popen("sensors | grep Package | egrep -o '[+][0-9]+[.][0-9]+' | cut -d+ -f2 | head -n1")
         local temperature = file:read("*n")
         file:close()
         return temperature
@@ -50,5 +50,7 @@ local function new(cpuid)
 
     return cpu
 end
+
+print(new(4):usage())
 
 return new

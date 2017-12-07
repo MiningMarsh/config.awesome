@@ -22,7 +22,7 @@ return {
     editor = "emacsclient -c",
 
     startup = {
-        "dispatch-confd &",
+        --["dispatch-confd &",
         "newsd &",
         "pidof redshift || redshift &",
         "pidof udevil || devmon --sync --info-on-mount &",
@@ -38,7 +38,7 @@ return {
         "xset s on -dpms",
         "xset s 600 600",
         "xsetroot -cursor_name left_ptr",
-        "pidof xautolock || xautolock -time 10 -locker xtrlock &",
+        "pidof xautolock || xautolock -time 10 -locker xtrlock &",--]]
     },
 
     theme = {
@@ -49,9 +49,8 @@ return {
     widgets = {
         widget.link(16, 8),
         widget.alsa(16, 8),
-        widget.battery(16, 8),
         -- Note to self, old values were 20, 8
-        widget.cpu(20, 8, 0, 7),
+        widget.cpu(20, 8, 0, 3),
         widget.mem(20, 8),
     },
 
@@ -67,6 +66,7 @@ return {
 
         current = {
             f = viml.current.fullscreen,
+            t = viml.current.float,
             m = viml.current.maximize,
             n = viml.current.minimize,
         },
@@ -111,34 +111,15 @@ return {
         launch = "Mod1",
 
         programs = {
+
+            a = {
+                name = "Audio Mixer",
+                command = "urxvtc -e pulsemixer"
+            },
+
             b = {
                 name = "Web Browser",
                 command = "firefox"
-            },
-
-            f = {
-                name = "File Manager",
-                command = "urxvtc -e ranger"
-            },
-
-            w = {
-                name = "Writer",
-                command = "libreoffice"
-            },
-
-            m = {
-                name = "Music Player",
-                command = "urxvtc -e ncmpcpp"
-            },
-
-            v = {
-                name = "Video Player",
-                command = "vlc"
-            },
-
-            e = {
-                name = "Text Editor",
-                command = "emacsclient -c"
             },
 
             c = {
@@ -146,9 +127,39 @@ return {
                 command = "erc"
             },
 
+            e = {
+                name = "Text Editor",
+                command = "emacsclient -c"
+            },
+
+            f = {
+                name = "File Manager",
+                command = "urxvtc -e ranger"
+            },
+
+            m = {
+                name = "Music Player",
+                command = "urxvtc -e ncmpcpp"
+            },
+
+            p = {
+                name = "Process Manager",
+                command = "urxvtc -e htop"
+            },
+
             t = {
                 name = "Tiny Fugue",
                 command = "urxvtc -e tf"
+            },
+
+            v = {
+                name = "Video Player",
+                command = "vlc"
+            },
+
+            w = {
+                name = "Writer",
+                command = "libreoffice"
             }
         }
     }
