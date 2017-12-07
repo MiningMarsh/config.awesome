@@ -23,6 +23,16 @@ local function getVolumeCommand()
     return "pactl list sinks | grep 'Name: " .. sink .. "' -a10 | grep Volume | egrep -oE '[0-9]+%' | egrep -oE '[0-9]+' | head -n1"
 end
 
+local function getMutedCommand()
+    local sink = getSink()
+
+    if not sink then
+        return nil
+    end
+
+    return "pactl list sinks | grep 'Name: " .. sink .. "' -a10 | grep Mute | awk '{print $2}'"
+end
+
 local function setVolumeCommand(value)
     local sink = getSink()
 
@@ -31,6 +41,29 @@ local function setVolumeCommand(value)
     end
 
     return "pactl set-sink-volume " .. sink .. " " .. tostring(value) .. "%"
+end
+
+local function setMutedCommand(value)
+    local sink = getSink()
+
+    if not sink then
+        return nil
+    end
+
+    return "pactl set-sink-mute " .. sink .. " " .. (value and "yes" or "no")
+end
+
+local function muted()
+    local muted = getMutedCommand()
+    if not muted then
+        return nil
+    end
+
+   local cmd = io.popen(muted)
+   local result = cmd:read()
+   cmd:close()
+
+   return result == "yes"
 end
 
 local function get()
@@ -44,6 +77,16 @@ local function get()
    cmd:close()
 
    return result
+end
+
+local function mute(new)
+    local set = setMutedCommand(new)
+    if not set then
+        return nil
+    end
+
+   local cmd = io.popen(set)
+   cmd:close()
 end
 
 local function set(new)
@@ -96,11 +139,11 @@ function volume:decrease(value)
 end
 
 function volume:muted()
-  return get("mute") == "true"
+  return muted()
 end
 
 function volume:toggle()
-   set("mute", not self:muted())
+	mute(not muted())	
 end
 
 return volume
