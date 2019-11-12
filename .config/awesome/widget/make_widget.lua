@@ -1,12 +1,11 @@
-local cairo = require("lgi")
-cairo = cairo.cairo
-local base = require("wibox.widget.base")
+local base  = require('wibox.widget.base')
+local cairo = require('lgi').cairo
 local color = require("gears.color")
 
 local function new(width, height, interval, seperator_width)
 
     -- Width that this widget renders nothing on to create seperator between this and next widget.
-    seperator_width = seperator_width and seperator_width or 4
+    seperator_width = seperator_width and seperator_width or 8
 
     -- Create the base widget that does custom drawing handling. Indexing falls
     -- back on the internal awesome default widget.
@@ -36,14 +35,14 @@ local function new(width, height, interval, seperator_width)
 
     function metatable:fit(awidth, aheight)
         -- If the widget declares it cannot be drawn, we return 0 width.
-        local drawable = rawget(widget, "drawable")
+        local drawable = rawget(widget, 'drawable')
         if drawable then
             if not drawable() then
                 return 0, aheight
             end
         end
 
-        local raw = rawget(widget, "fit")
+        local raw = rawget(widget, 'fit')
         if raw then
             -- Otherwise, we append the seperator width.
             local rawwidth, rawheight = raw(widget_interface, awidth, aheight)
@@ -85,7 +84,7 @@ local function new(width, height, interval, seperator_width)
         -- Have the widget draw to the new context.
         local fn = rawget(widget, "draw")
         if fn then
-            fn(widget_interface, wibox, newcr, width, passed_height)
+            fn(widget_interface, newcr, width, passed_height)
         end
 
         -- Paint the new context onto the actual context.

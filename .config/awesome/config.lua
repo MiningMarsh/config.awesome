@@ -11,156 +11,120 @@ local wibox     = require("wibox")
 local widget    = require("widget")
 
 return {
-    layouts = {
-        awful.layout.suit.tile,
-        awful.layout.suit.spiral,
-        lain.layout.centerwork,
-        awful.layout.suit.floating
-    },
+   layouts = {
+      awful.layout.suit.tile,
+      awful.layout.suit.spiral,
+      lain.layout.centerwork,
+      awful.layout.suit.floating
+   },
 
-    terminal = "urxvtc",
-    editor = "emacsclient -c",
+   bar = {
+      height = 48,
+      spacer_width = 8,
+   },
 
-    startup = {
-        --["dispatch-confd &",
-        "newsd &",
-        "pidof redshift || redshift &",
-        "pidof udevil || devmon --sync --info-on-mount &",
-        "emacsd",
-        "gpud &",
-        "pidof mpd || mpd && mpc pause",
-        "pidof urxvtd || urxvtd -f",
-        "synclient TapButton1=1 TapButton2=3 TapButton3=2",
-        "xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'",
-        "xrandr --auto",
-        "xrandr --output HDMI1 --set 'Broadcast RGB' 'Full'",
-        --"xrandr --setprovideroutputsource modesetting NVIDIA-0",
-        "xset s on -dpms",
-        "xset s 600 600",
-        "xsetroot -cursor_name left_ptr",
-        "pidof xautolock || xautolock -time 10 -locker xtrlock &",--]]
-    },
+   terminal = "konsole",
+   editor = "emacsclient -c",
 
-    theme = {
-        wallpaper = "~/.config/awesome/background",
-        --font      = "Kremlin 8"
-    },
+   theme = {
+      wallpaper = "~/.config/awesome/background",
+      --font      = "Kremlin 8"
+   },
 
-    widgets = {
-        widget.link(16, 8),
-        widget.alsa(16, 8),
-        -- Note to self, old values were 20, 8
-        widget.cpu(20, 8, 0, 3),
-        widget.mem(20, 8),
-    },
 
-    keys = {
-        master = "Mod4",
+   widgets = {
+      widget.link(48, 24, 'enxa0cec8cc5fb0', 'wlp59s0'),
+      widget.alsa(48, 24),
+      widget.cpu(40, 24, 0, 12),
+      widget.mem(40, 24),
+      widget.battery(40, 16, "/sys/class/power_supply/BAT0/"),
+      widget.spacer(8)
+   },
 
-        operations = {
-            viml.operation.focus, "None",
-            viml.operation.kill,  "Ctrl",
-            viml.operation.swap,  "Shift",
-            viml.operation.move,  "Mod1",
-        },
+   keys = {
+      master = "Mod4",
 
-        current = {
-            f = viml.current.fullscreen,
-            t = viml.current.float,
-            m = viml.current.maximize,
-            n = viml.current.minimize,
-        },
+      operations = {
+	 viml.operation.focus, "None",
+	 viml.operation.kill,  "Ctrl",
+	 viml.operation.swap,  "Shift",
+	 viml.operation.move,  "Mod1",
+      },
 
-        commands = {
-            v = viml.command.restore,
-        },
+      current = {
+	 f = viml.current.fullscreen,
+	 s = viml.current.float,
+	 m = viml.current.maximize,
+	 n = viml.current.minimize,
+      },
 
-        movements = {
-            viml.movement.client.current,            "\\",
-            viml.movement.client.direction("down"),  "j",
-            viml.movement.client.direction("left"),  "h",
-            viml.movement.client.direction("right"), "l",
-            viml.movement.client.direction("up"),    "k",
-            viml.movement.client.id(1),              "q",
-            viml.movement.client.id(2),              "w",
-            viml.movement.client.id(3),              "e",
-            viml.movement.client.id(4),              "r",
-            viml.movement.client.id(5),              "t",
-            viml.movement.client.id(6),              "y",
-            viml.movement.client.id(7),              "u",
-            viml.movement.client.id(8),              "i",
-            viml.movement.client.id(9),              "o",
-            viml.movement.client.id(10),             "p",
-            viml.movement.client.next,               "]",
-            viml.movement.client.previous,           "[",
-            viml.movement.tag.current,               "BackSpace",
-            viml.movement.tag.id(1),                 1,
-            viml.movement.tag.id(2),                 2,
-            viml.movement.tag.id(3),                 3,
-            viml.movement.tag.id(4),                 4,
-            viml.movement.tag.id(5),                 5,
-            viml.movement.tag.id(6),                 6,
-            viml.movement.tag.id(7),                 7,
-            viml.movement.tag.id(8),                 8,
-            viml.movement.tag.id(9),                 9,
-            viml.movement.tag.id(10),                0,
-            viml.movement.tag.next,                  "=",
-            viml.movement.tag.previous,              "-",
-        },
+      commands = {
+	 v = viml.command.restore,
+      },
 
-        launch = "Mod1",
+      movements = {
+	 viml.movement.client.current,            "\\",
+	 viml.movement.client.direction("down"),  "j",
+	 viml.movement.client.direction("left"),  "h",
+	 viml.movement.client.direction("right"), "l",
+	 viml.movement.client.direction("up"),    "k",
+	 viml.movement.client.id(1),              "q",
+	 viml.movement.client.id(2),              "w",
+	 viml.movement.client.id(3),              "e",
+	 viml.movement.client.id(4),              "r",
+	 viml.movement.client.id(5),              "t",
+	 viml.movement.client.id(6),              "y",
+	 viml.movement.client.id(7),              "u",
+	 viml.movement.client.id(8),              "i",
+	 viml.movement.client.id(9),              "o",
+	 viml.movement.client.id(10),             "p",
+	 viml.movement.client.next,               "]",
+	 viml.movement.client.previous,           "[",
+	 viml.movement.tag.current,               "BackSpace",
+	 viml.movement.tag.id(1),                 1,
+	 viml.movement.tag.id(2),                 2,
+	 viml.movement.tag.id(3),                 3,
+	 viml.movement.tag.id(4),                 4,
+	 viml.movement.tag.id(5),                 5,
+	 viml.movement.tag.id(6),                 6,
+	 viml.movement.tag.id(7),                 7,
+	 viml.movement.tag.id(8),                 8,
+	 viml.movement.tag.id(9),                 9,
+	 viml.movement.tag.id(10),                0,
+	 viml.movement.tag.next,                  "=",
+	 viml.movement.tag.previous,              "-",
+      },
 
-        programs = {
+      launch = "Mod1",
 
-            a = {
-                name = "Audio Mixer",
-                command = "urxvtc -e pulsemixer"
-            },
+      programs = {
 
-            b = {
-                name = "Web Browser",
-                command = "firefox"
-            },
+	 b = {
+	    name = "Web Browser",
+	    command = "firefox"
+	 },
 
-            c = {
-                name = "IRC",
-                command = "erc"
-            },
+	 e = {
+	    name = "Text Editor",
+	    command = "emacsclient -c"
+	 },
 
-            e = {
-                name = "Text Editor",
-                command = "emacsclient -c"
-            },
+	 f = {
+	    name = "File Manager",
+	    command = "ranger",
+	    terminal = true
+	 },
 
-            f = {
-                name = "File Manager",
-                command = "urxvtc -e ranger"
-            },
+	 p = {
+	    name = "Process Monitor",
+	    command = "htop",
+	    terminal = true
+	 },
 
-            m = {
-                name = "Music Player",
-                command = "urxvtc -e ncmpcpp"
-            },
-
-            p = {
-                name = "Process Manager",
-                command = "urxvtc -e htop"
-            },
-
-            t = {
-                name = "Tiny Fugue",
-                command = "urxvtc -e tf"
-            },
-
-            v = {
-                name = "Video Player",
-                command = "vlc"
-            },
-
-            w = {
-                name = "Writer",
-                command = "libreoffice"
-            }
-        }
-    }
+	 s = {
+	    name = 'Slack',
+	    command = 'flatpak run com.slack.Slack'
+	 }
+      }
+   }
 }

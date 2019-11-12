@@ -31,7 +31,7 @@ function new(width, height, firstcpu, lastcpu)
     local cpu_monitor = make_widget(width, height, 0.3)
 
     -- Draws the widget.
-    function cpu_monitor:draw(wibox, cr, width, height)
+    function cpu_monitor:draw(cr, width, height)
 
         --cr:move_to(0, height - 0.5)
         --cr:line_to(width, height - 0.5)
@@ -59,12 +59,12 @@ function new(width, height, firstcpu, lastcpu)
     local last = false
     function cpu_monitor:drawable()
         for i = 1, width do
-            if graph:peek(i) > 0.8 then
+            if graph:peek(i) > 0.25 then
                 return true
             end
         end
 
-        return true
+        return false
     end
 
     return cpu_monitor

@@ -15,7 +15,7 @@ function new(width, height)
     local mem_monitor = make_widget(widget_width, widget_height, 0.1)
 
     -- Draws the widget.
-    function mem_monitor:draw(wibox, cr, width, height)
+    function mem_monitor:draw(cr, width, height)
 
         local function h(i)
             return height - (height * graph:peek(width - i + 1)) + 0.5
@@ -44,12 +44,12 @@ function new(width, height)
 
     function mem_monitor:drawable()
         for i = 1, width do
-            if graph:peek(i) > 0.5 then
+            if graph:peek(i) > 0.25 then
                 return true
             end
         end
 
-        return true -- false
+        return false
     end
 
     return mem_monitor

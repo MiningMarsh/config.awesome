@@ -2,7 +2,7 @@ local make_widget = require("widget.make_widget")
 local link_factory = require("monitor.link")
 local graphic = require("graphic")
 
-function new(width, height, interface)
+function new(width, height, physical_interface, wireless_interface)
 
     width = width or 20
     height = height or nil
@@ -10,12 +10,8 @@ function new(width, height, interface)
     -- The battery object we are returning.
     local link = {}
 
-    -- If no path was given, use the default.
-    if interface then
-        link = link_factory(interface)
-    else
-        link = link_factory()
-    end
+    -- Create our link monitor.
+    link = link_factory(physical_interface, wireless_interface)
 
     -- Create the widget.
     local link_monitor = make_widget(width, height, 1)
@@ -24,7 +20,7 @@ function new(width, height, interface)
     local quality = link:quality()
 
     -- Draws the widget.
-    function link_monitor:draw(wibox, cr, width, height)
+    function link_monitor:draw(cr, width, height)
         local triangle = graphic.polygon(cr)
         local h = height - height * quality
         local e = width * quality

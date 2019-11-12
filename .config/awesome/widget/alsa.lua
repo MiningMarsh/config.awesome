@@ -34,7 +34,7 @@ function object:new(width, height)
     local volume = alsa:volume()
 
     -- Draws the widget.
-    function alsa_monitor:draw(wibox, cr, width, height)
+    function alsa_monitor:draw(cr, width, height)
 
         local top = height - 2
         local bottom = 2
@@ -65,15 +65,19 @@ function object:new(width, height)
 
         volume = alsa:volume()
         local h = height - (height - 2) * volume
-        local e = width - (width - 7) * (1 - volume)
+        local e = width - (width - 9) * (1 - volume)
 
         local triangle = graphic.polygon(cr)
-        triangle:add_point(7, height - 1)
+        triangle:add_point(9, height - 1)
         triangle:add_point(e, height - 1)
         triangle:add_point(e, h - 1)
         triangle:draw()
         cr:fill()
 
+    end
+
+    function alsa_monitor:drawable()
+       return not alsa:muted()
     end
 
     instances[#instances + 1] = alsa_monitor

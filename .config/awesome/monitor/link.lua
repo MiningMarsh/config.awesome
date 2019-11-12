@@ -1,61 +1,66 @@
-function new(name)
-    -- The name of the interface we are grabbing.
-    name = name or "wlan0"
-    -- The link object we are returning.
-    local link = {}
+function new(physical_interface, wireless_interface)
 
-    local checklink = function(interface)
-        local state = io.open("/sys/class/net/" .. interface .. "/operstate")
-        if state and state:read("*l") == "up" then
-        	state = io.open("/sys/class/net/" .. interface .. "/carrier")
-        	if state and state:read("*n") == 1 then
-                state:close()
-        		return true
-        	end
-        end
+   -- The name of the interface we are grabbing.
+   wireless_name = wireless_interface or "wlan0"
+   wired_name = physical_interface or "eth0"
 
-        if state then
-            state:close()
-        end
+   -- The link object we are returning.
+   local link = {}
 
-        return false
-    end
+   local function checklink (interface)
+      local state = io.open("/sys/class/net/" .. interface .. "/operstate")
+      if state and state:read("*l") == "up" then
+	 state:close()
+	 state = io.open("/sys/class/net/" .. interface .. "/carrier")
+	 if state and state:read("*n") == 1 then
+	    state:close()
+	    return true
+	 end
+	 state = nil
+      end
 
-    -- Returns whether we are on ethernet
-    function link:on_ethernet()
-        return checklink("enp4s0")
-    end
+      if state then
+	 state:close()
+      end
 
-    -- Returns whether we are on a wireless connection.
-    function link:on_wireless()
-        return checklink("wlp5s0")
-    end
+      return false
+   end
 
-    -- Return quality of this link.
-    function link:quality()
-        if link:on_ethernet() then
-            return 100
-        end
+   -- Returns whether we are on ethernet
+   function link:on_ethernet()
+      return checklink(wired_name)
+   end
 
-        local file = assert(io.open("/proc/net/wireless"))
+   -- Returns whether we are on a wireless connection.
+   function link:on_wireless()
+      return checklink(wireless_name)
+   end
 
-        file:read("*line")
-        file:read("*line")
-        file:read(7)
-        file:read("*number")
+   -- Return quality of this link.
+   function link:quality()
+      if link:on_ethernet() then
+	 return 100
+      end
 
-        local num = file:read("*number")
+      local file = assert(io.open("/proc/net/wireless"))
 
-        file:close()
+      file:read("*line")
+      file:read("*line")
+      file:read(string.len(wireless_name) + 1)
+      file:read("*number")
 
-        if num then
-            return num / 100
-        else
-            return 0
-        end
-    end
+      local num = file:read("*number")
 
-    return link
+      file:close()
+
+      if num then
+	 return num / 100
+      else
+	 return 0
+      end
+   end
+
+   return link
 end
 
 return new
